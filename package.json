@@ -1,0 +1,39 @@
+{
+  "name": "auth-service",
+  "version": "0.0.1",
+  "author": "Jeswin Kumar<jeswinpk@agilehead.com>",
+  "contributors": [
+    "Jeswin Kumar<jeswinpk@agilehead.com>"
+  ],
+  "scripts": {
+    "transpile": "./build.sh",
+    "test": "./build.sh && mocha dist/test/test.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@types/jsonwebtoken": "^8.3.2",
+    "@types/koa": "^2.0.48",
+    "@types/koa-mount": "^3.0.1",
+    "@types/koa-router": "^7.0.40",
+    "@types/koa-session": "^5.10.0",
+    "@types/node": "^10.9.2",
+    "@types/request": "^2.48.1",
+    "grant-koa": "^4.5.0",
+    "jsonwebtoken": "^8.5.1",
+    "koa": "^2.7.0",
+    "koa-mount": "^4.0.0",
+    "koa-router": "^7.4.0",
+    "koa-session": "^5.10.1",
+    "koa-static": "^5.0.0",
+    "psychopiggy": "^1.0.1",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "@types/mocha": "^5.2.5",
+    "@types/should": "^13.0.0",
+    "mocha": "5.2.0",
+    "should": "13.2.3"
+  },
+  "license": "MIT"
+}
