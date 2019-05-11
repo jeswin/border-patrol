@@ -4,10 +4,10 @@ import error from "../error";
 import * as config from "../config";
 
 export async function getToken(ctx: IRouterContext) {
-  const redirectUrl = ctx.cookies.get("redirect_url");
+  const redirectUrl = ctx.cookies.get("oauth_jwt_service_redirect");
   if (!redirectUrl) {
     ctx.status = 400;
-    ctx.body = "Invalid request. redirect_url was missing in cookie.";
+    ctx.body = "Invalid request. oauth_jwt_service_redirect was missing in cookie.";
   } else {
     const oauthService = ctx.params.service;
     const tokenGrant = ctx.session.grant;
@@ -17,7 +17,7 @@ export async function getToken(ctx: IRouterContext) {
         : error("Invalid oauth service selected.");
     if (result.oauthSuccess) {
       if (result.isValidUser) {
-        ctx.cookies.set("jwt_token", result.token, {
+        ctx.cookies.set("oauth_jwt_service_token", result.token, {
           domain: config.get().domain
         });
         ctx.redirect(redirectUrl);
