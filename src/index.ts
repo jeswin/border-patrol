@@ -34,6 +34,7 @@ async function init() {
   const oauthConfig = require(join(configDir, "oauth.js"));
   const dbConfig = require(join(configDir, "db.js"));
   const jwtConfig = require(join(configDir, "jwt.js"));
+  const appConfig = require(join(configDir, "app.js"));
 
   // Init utils
   db.init(dbConfig);
@@ -44,12 +45,33 @@ async function init() {
 
   // Set up routes
   const router = new Router();
-  router.get("/authenticate/:service", authenticate);
-  router.get("/oauth/:service", getToken);
+
+  // Define routes for enabled services
+  const enablePasswordAuth: boolean =
+    process.env.ENABLE_PASSWORD_AUTH &&
+    ["true", "yes"].includes(process.env.ENABLE_PASSWORD_AUTH)
+      ? true
+      : false;
+
+  const enabledOAuthServices = process.env.ENABLED_OAUTH_SERVICES
+    ? process.env.ENABLED_OAUTH_SERVICES.split(",")
+    : ["github"];
+
+  const allServices = (enablePasswordAuth ? ["login"] : []).concat(
+    enabledOAuthServices
+  );
+
+  allServices.forEach(service => {
+    router.get(`/authenticate/${service}`, authenticate(service));
+  });
+
+  enabledOAuthServices.forEach(oauthService => {
+    router.get(`/oauth/token/${oauthService}`, getToken(oauthService));
+  });
 
   // Start app
   var app = new Koa();
-  app.keys = ["grant_8467765359_6775713888"];
+  app.keys = appConfig.APP_KEYS.split(",");
   app.use(session(app));
   app.use(mount(grant(oauthConfig)));
   app.use(router.routes());
