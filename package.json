@@ -1,6 +1,6 @@
 {
-  "name": "auth-service",
-  "version": "0.0.1",
+  "name": "oauth-jwt-service",
+  "version": "0.0.2",
   "author": "Jeswin Kumar<jeswinpk@agilehead.com>",
   "contributors": [
     "Jeswin Kumar<jeswinpk@agilehead.com>"
