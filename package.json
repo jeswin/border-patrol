@@ -1,6 +1,6 @@
 {
-  "name": "oauth-jwt-service",
-  "version": "0.0.2",
+  "name": "jwt-auth-service",
+  "version": "0.0.3",
   "author": "Jeswin Kumar<jeswinpk@agilehead.com>",
   "contributors": [
     "Jeswin Kumar<jeswinpk@agilehead.com>"
@@ -8,6 +8,9 @@
   "scripts": {
     "transpile": "./build.sh",
     "test": "./build.sh && mocha dist/test/test.js"
+  },
+  "bin": {
+    "jwt-auth-service": "dist/index.js"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
