@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import Koa = require("koa");
 import session = require("koa-session");
 import mount = require("koa-mount");
