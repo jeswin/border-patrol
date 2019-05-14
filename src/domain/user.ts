@@ -4,45 +4,40 @@ import { getPool } from "../db";
 
 export type GetUsernameResult =
   | {
-    isValidUser: true;
-    username: string;
-  }
+      isValidUser: true;
+      username: string;
+    }
   | { isValidUser: false };
 
 export async function getUsername(
-  serviceUsername: string,
-  serviceType: string
+  providerUsername: string,
+  providerName: string
 ): Promise<GetUsernameResult> {
   const pool = getPool();
 
   const params = new pg.Params({
-    serviceUsername,
-    serviceType
+    providerUsername,
+    providerName
   });
 
   const { rows } = await pool.query(
-    `SELECT username FROM "user" WHERE service_username=${params.id(
-      "serviceUsername"
-    )} AND service_type=${params.id("serviceType")}`,
+    `SELECT username FROM "user" WHERE provider_username=${params.id(
+      "providerUsername"
+    )} AND provider_name=${params.id("providerName")}`,
     params.values()
   );
 
   return rows.length
     ? {
-      isValidUser: true,
-      username: rows[0].username
-    }
+        isValidUser: true,
+        username: rows[0].username
+      }
     : {
-      isValidUser: false
-    };
+        isValidUser: false
+      };
 }
 
-export type GetPermissionsResult = {
-  username: string;
-  permissions: { resource: string, permission: string }[]
-}
-
-export async function getPermissions(username: string): Promise<GetPermissionsResult> {
+export async function getRoles(username: string): Promise<string[]> {
   const pool = getPool();
 
   const params = new pg.Params({
@@ -50,15 +45,52 @@ export async function getPermissions(username: string): Promise<GetPermissionsRe
   });
 
   const { rows } = await pool.query(
-    `SELECT resource, permission FROM permission WHERE username=${params.id(
+    `SELECT role FROM "user_role" WHERE username=${params.id("username")}`,
+    params.values()
+  );
+
+  return rows.map(x => x.role);
+}
+
+export type GetPermissionsResult = {
+  username: string;
+  roles: string[];
+  permissions: { resource: string; permission: string }[];
+};
+
+export async function getUserPermissions(
+  username: string
+): Promise<GetPermissionsResult> {
+  const pool = getPool();
+
+  const userPermissionParams = new pg.Params({
+    username
+  });
+
+  const { rows: userPermissionRows } = await pool.query(
+    `SELECT resource, permission FROM user_permission WHERE username=${userPermissionParams.id(
       "username"
     )}`,
-    params.values()
+    userPermissionParams.values()
+  );
+
+  const roles = await getRoles(username);
+
+  const rolePermissionParams = new pg.Params({
+    ...roles
+  });
+
+  const { rows: rolePermissionRows } = await pool.query(
+    `SELECT resource, permission 
+      FROM role_permission 
+      WHERE role IN (${rolePermissionParams.ids()})`,
+    rolePermissionParams.values()
   );
 
   return {
     username,
-    permissions: rows
+    roles,
+    permissions: userPermissionRows.concat(rolePermissionRows)
   };
 }
 
@@ -71,25 +103,28 @@ export interface IGetTokenResultMissingUser {
   isValidUser: false;
 }
 
-export type GetTokenResult = IGetTokenResultSuccess | IGetTokenResultMissingUser;
+export type GetTokenResult =
+  | IGetTokenResultSuccess
+  | IGetTokenResultMissingUser;
 
-export async function getToken(serviceUsername: string, serviceType: string): Promise<GetTokenResult> {
-  const getUsernameResult = await getUsername(serviceUsername, serviceType);
+export async function getToken(
+  providerUsername: string,
+  providerName: string
+): Promise<GetTokenResult> {
+  const getUsernameResult = await getUsername(providerUsername, providerName);
 
   return getUsernameResult.isValidUser
     ? await (async () => {
-      const username = getUsernameResult.username;
-      const permissions = await getPermissions(
-        username
-      );
-      const token = sign({ username, permissions });
+        const username = getUsernameResult.username;
+        const permissions = await getUserPermissions(username);
+        const token = sign({ username, permissions });
 
-      return {
-        isValidUser: true,
-        token
-      } as IGetTokenResultSuccess;
-    })()
+        return {
+          isValidUser: true,
+          token
+        } as IGetTokenResultSuccess;
+      })()
     : ({
-      isValidUser: false,
-    } as IGetTokenResultMissingUser);
+        isValidUser: false
+      } as IGetTokenResultMissingUser);
 }
