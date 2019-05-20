@@ -52,7 +52,7 @@ export async function getRoles(username: string): Promise<string[]> {
   return rows.map(x => x.role);
 }
 
-export type GetJWTsResult = {
+export type getTokensForUserResult = {
   username: string;
   roles: string[];
   tokens: { token: string; value: string }[];
@@ -60,7 +60,7 @@ export type GetJWTsResult = {
 
 export async function getTokensForUser(
   username: string
-): Promise<GetJWTsResult> {
+): Promise<getTokensForUserResult> {
   const pool = getPool();
 
   const userTokenParams = new pg.Params({
