@@ -4,12 +4,12 @@ CREATE TABLE "user" (
     "provider_name" character varying (64) NOT NULL,
     CONSTRAINT "user_pkey" PRIMARY KEY ("username"));
 
-CREATE TABLE "user_permission" (
-    "resource" character varying (512) NOT NULL,
+CREATE TABLE "user_token" (
+    "token" character varying (512) NOT NULL,
     "username" character varying (64) NOT NULL,
-    "permission" character varying (64) NOT NULL,
-    CONSTRAINT "user_permission_pkey" PRIMARY KEY ("resource", "username"),
-    CONSTRAINT "user_permission_resource_username_fkey" 
+    "value" character varying (64) NOT NULL,
+    CONSTRAINT "user_token_pkey" PRIMARY KEY ("token", "username"),
+    CONSTRAINT "user_token_token_username_fkey" 
         FOREIGN KEY ("username") REFERENCES "user" ("username"));
 
 CREATE TABLE "role" (
@@ -17,12 +17,12 @@ CREATE TABLE "role" (
     "description" character varying (512),
     CONSTRAINT "role_pkey" PRIMARY KEY ("role"));
 
-CREATE TABLE "role_permission" (
-    "resource" character varying (256) NOT NULL,
+CREATE TABLE "role_token" (
+    "token" character varying (256) NOT NULL,
     "role" character varying (64) NOT NULL,
-    "permission" character varying (64) NOT NULL,
-    CONSTRAINT "role_permission_pkey" PRIMARY KEY ("resource", "role"),
-    CONSTRAINT "role_permission_resource_username_fkey" 
+    "value" character varying (64) NOT NULL,
+    CONSTRAINT "role_token_pkey" PRIMARY KEY ("token", "role"),
+    CONSTRAINT "role_token_token_username_fkey" 
         FOREIGN KEY ("role") REFERENCES "role" ("role"));
 
 CREATE TABLE "user_role" (

@@ -3,7 +3,7 @@ import * as github from "../domain/oauth/github";
 import error from "../error";
 import * as config from "../config";
 
-export function getToken(providerName: string) {
+export function getJWT(providerName: string) {
   return async (ctx: IRouterContext) => {
     const redirectUrl = ctx.cookies.get("jwt_auth_service_redirect");
     if (!redirectUrl) {
@@ -14,11 +14,11 @@ export function getToken(providerName: string) {
       const tokenGrant = ctx.session.grant;
       const result =
         providerName === "github"
-          ? await github.getToken(tokenGrant.response.access_token)
+          ? await github.getJWT(tokenGrant.response.access_token)
           : error("Invalid oauth service selected.");
       if (result.oauthSuccess) {
         if (result.isValidUser) {
-          ctx.cookies.set("jwt_auth_service_token", result.token, {
+          ctx.cookies.set("jwt_auth_service_token", result.jwt, {
             domain: config.get().domain
           });
           ctx.redirect(redirectUrl);

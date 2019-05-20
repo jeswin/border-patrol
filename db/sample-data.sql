@@ -19,8 +19,8 @@ INSERT INTO "user_role"("role", "username")
 INSERT INTO "user_role"("role", "username")
 	VALUES ('admin', 'eddie');
 
-INSERT INTO "user_permission"("resource", "username", "permission")
+INSERT INTO "user_token"("token", "username", "value")
 	VALUES ('full', 'jeswin', 'yes');
 	
-INSERT INTO "role_permission"("resource", "role", "permission")
+INSERT INTO "role_token"("token", "role", "value")
 	VALUES ('dashboard', 'admin', 'yes');

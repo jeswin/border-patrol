@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS 'user_permission';
+DROP TABLE IF EXISTS 'user_token';
 
-DROP TABLE IF EXISTS 'role_permission';
+DROP TABLE IF EXISTS 'role_token';
 
 DROP TABLE IF EXISTS 'user_role';
 

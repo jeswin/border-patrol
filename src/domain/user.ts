@@ -52,79 +52,79 @@ export async function getRoles(username: string): Promise<string[]> {
   return rows.map(x => x.role);
 }
 
-export type GetPermissionsResult = {
+export type GetJWTsResult = {
   username: string;
   roles: string[];
-  permissions: { resource: string; permission: string }[];
+  tokens: { token: string; value: string }[];
 };
 
-export async function getUserPermissions(
+export async function getTokensForUser(
   username: string
-): Promise<GetPermissionsResult> {
+): Promise<GetJWTsResult> {
   const pool = getPool();
 
-  const userPermissionParams = new pg.Params({
+  const userTokenParams = new pg.Params({
     username
   });
 
-  const { rows: userPermissionRows } = await pool.query(
-    `SELECT resource, permission FROM user_permission WHERE username=${userPermissionParams.id(
+  const { rows: userTokenRows } = await pool.query(
+    `SELECT token, value FROM user_token WHERE username=${userTokenParams.id(
       "username"
     )}`,
-    userPermissionParams.values()
+    userTokenParams.values()
   );
 
   const roles = await getRoles(username);
 
-  const rolePermissionParams = new pg.Params({
+  const roleTokenParams = new pg.Params({
     ...roles
   });
 
-  const { rows: rolePermissionRows } = await pool.query(
-    `SELECT resource, permission 
-      FROM role_permission 
-      WHERE role IN (${rolePermissionParams.ids()})`,
-    rolePermissionParams.values()
+  const { rows: roleTokenRows } = await pool.query(
+    `SELECT token, value 
+      FROM role_token 
+      WHERE role IN (${roleTokenParams.ids()})`,
+    roleTokenParams.values()
   );
 
   return {
     username,
     roles,
-    permissions: userPermissionRows.concat(rolePermissionRows)
+    tokens: userTokenRows.concat(roleTokenRows)
   };
 }
 
-export interface IGetTokenResultSuccess {
+export interface IGetJWTResultSuccess {
   isValidUser: true;
-  token: string;
+  jwt: string;
 }
 
-export interface IGetTokenResultMissingUser {
+export interface IGetJWTResultMissingUser {
   isValidUser: false;
 }
 
-export type GetTokenResult =
-  | IGetTokenResultSuccess
-  | IGetTokenResultMissingUser;
+export type GetJWTResult =
+  | IGetJWTResultSuccess
+  | IGetJWTResultMissingUser;
 
-export async function getToken(
+export async function getJWT(
   providerUsername: string,
   providerName: string
-): Promise<GetTokenResult> {
+): Promise<GetJWTResult> {
   const getUsernameResult = await getUsername(providerUsername, providerName);
 
   return getUsernameResult.isValidUser
     ? await (async () => {
         const username = getUsernameResult.username;
-        const permissions = await getUserPermissions(username);
-        const token = sign({ username, permissions });
+        const tokensForUser = await getTokensForUser(username);
+        const jwt = sign(tokensForUser);
 
         return {
           isValidUser: true,
-          token
-        } as IGetTokenResultSuccess;
+          jwt
+        } as IGetJWTResultSuccess;
       })()
     : ({
         isValidUser: false
-      } as IGetTokenResultMissingUser);
+      } as IGetJWTResultMissingUser);
 }
