@@ -52,11 +52,7 @@ export async function getRoles(username: string): Promise<string[]> {
   return rows.map(x => x.role);
 }
 
-export type getTokensForUserResult = {
-  username: string;
-  roles: string[];
-  tokens: { token: string; value: string }[];
-};
+export type getTokensForUserResult = { [key: string]: string };
 
 export async function getTokensForUser(
   username: string
@@ -90,7 +86,9 @@ export async function getTokensForUser(
   return {
     username,
     roles,
-    tokens: userTokenRows.concat(roleTokenRows)
+    ...userTokenRows
+      .concat(roleTokenRows)
+      .reduce((acc, i) => ((acc[i.token] = i.value), acc), {})
   };
 }
 
@@ -103,9 +101,7 @@ export interface IGetJWTResultMissingUser {
   isValidUser: false;
 }
 
-export type GetJWTResult =
-  | IGetJWTResultSuccess
-  | IGetJWTResultMissingUser;
+export type GetJWTResult = IGetJWTResultSuccess | IGetJWTResultMissingUser;
 
 export async function getJWT(
   providerUsername: string,
