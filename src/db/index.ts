@@ -6,6 +6,7 @@ export interface IPGConfig {
   password: string;
   port: number;
   user: string;
+  ssl?: boolean;
 }
 
 let config: IPGConfig;
@@ -15,7 +16,7 @@ export async function init(c: IPGConfig) {
     psychopiggy.createPool(c);
     config = c;
   } else {
-    throw("DB config has already been initialized.");
+    throw "DB config has already been initialized.";
   }
 }
 
