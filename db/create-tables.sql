@@ -1,35 +1,49 @@
 CREATE TABLE "user" (
+    "domain" character varying (64) NOT NULL,
     "username" character varying (64) NOT NULL,
     "provider_username" character varying (128) NOT NULL,
     "provider_name" character varying (64) NOT NULL,
-    CONSTRAINT "user_pkey" PRIMARY KEY ("username"));
+    CONSTRAINT "user_pkey" 
+        PRIMARY KEY ("domain", "username"));
 
 CREATE TABLE "user_token" (
+    "domain" character varying (64) NOT NULL,
     "token" character varying (512) NOT NULL,
     "username" character varying (64) NOT NULL,
     "value" character varying (64) NOT NULL,
-    CONSTRAINT "user_token_pkey" PRIMARY KEY ("token", "username"),
-    CONSTRAINT "user_token_token_username_fkey" 
-        FOREIGN KEY ("username") REFERENCES "user" ("username"));
+    CONSTRAINT "user_token_pkey" 
+        PRIMARY KEY ("domain", "token", "username"),
+    CONSTRAINT "user_token_user_fkey" 
+        FOREIGN KEY ("domain", "username") 
+        REFERENCES "user" ("domain", "username"));
 
 CREATE TABLE "role" (
+    "domain" character varying (64) NOT NULL,
     "role" character varying (64) NOT NULL,
     "description" character varying (512),
-    CONSTRAINT "role_pkey" PRIMARY KEY ("role"));
+    CONSTRAINT "role_pkey" 
+        PRIMARY KEY ("domain", "role"));
 
 CREATE TABLE "role_token" (
+    "domain" character varying (64) NOT NULL,
     "token" character varying (256) NOT NULL,
     "role" character varying (64) NOT NULL,
     "value" character varying (64) NOT NULL,
-    CONSTRAINT "role_token_pkey" PRIMARY KEY ("token", "role"),
-    CONSTRAINT "role_token_token_username_fkey" 
-        FOREIGN KEY ("role") REFERENCES "role" ("role"));
+    CONSTRAINT "role_token_pkey" 
+        PRIMARY KEY ("domain", "token", "role"),
+    CONSTRAINT "role_token_role_fkey" 
+        FOREIGN KEY ("domain", "role") 
+        REFERENCES "role" ("domain", "role"));
 
 CREATE TABLE "user_role" (
+    "domain" character varying (64) NOT NULL,
     "role" character varying (64) NOT NULL,
     "username" character varying (64) NOT NULL,
-    CONSTRAINT "user_role_pkey" PRIMARY KEY ("role", "username"),
+    CONSTRAINT "user_role_pkey" 
+        PRIMARY KEY ("domain", "role", "username"),
     CONSTRAINT "user_role_role_fkey" 
-        FOREIGN KEY ("role") REFERENCES "role" ("role"),
-    CONSTRAINT "user_role_username_fkey" 
-        FOREIGN KEY ("username") REFERENCES "user" ("username"));
+        FOREIGN KEY ("domain", "role") 
+        REFERENCES "role" ("domain", "role"),
+    CONSTRAINT "user_role_user_fkey" 
+        FOREIGN KEY ("domain", "username") 
+        REFERENCES "user" ("domain", "username"));
