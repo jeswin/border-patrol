@@ -21,7 +21,7 @@ export async function getUsername(
   });
 
   const { rows } = await pool.query(
-    `SELECT username FROM "user" WHERE provider_username=${params.id(
+    `SELECT username FROM "provider_user" WHERE provider_username=${params.id(
       "providerUsername"
     )} AND provider_name=${params.id("providerName")}`,
     params.values()
