@@ -1,10 +1,19 @@
 CREATE TABLE "user" (
     "domain" character varying (64) NOT NULL,
     "username" character varying (64) NOT NULL,
-    "provider_username" character varying (128) NOT NULL,
-    "provider_name" character varying (64) NOT NULL,
     CONSTRAINT "user_pkey" 
         PRIMARY KEY ("domain", "username"));
+
+CREATE TABLE "provider_user" (
+    "domain" character varying (64) NOT NULL,
+    "username" character varying (64) NOT NULL,
+    "provider_username" character varying (128) NOT NULL,
+    "provider_name" character varying (64) NOT NULL,
+    CONSTRAINT "provider_user_pkey" 
+        PRIMARY KEY ("domain", "provider_username", "provider_name"),
+    CONSTRAINT "provider_user_user_fkey" 
+        FOREIGN KEY ("domain", "username") 
+        REFERENCES "user" ("domain", "username"));
 
 CREATE TABLE "user_token" (
     "domain" character varying (64) NOT NULL,

@@ -1,7 +1,17 @@
-INSERT INTO "user"("domain", "username", "provider_username", "provider_name")
+INSERT INTO "user"("domain", "username")
+	VALUES ('example.com', 'jeswin');
+
+INSERT INTO "user"("domain", "username")
+	VALUES ('example.com', 'eddie');
+
+INSERT INTO "provider_user"(
+	"domain", "username", "provider_username", "provider_name"
+)
 	VALUES ('example.com', 'jeswin', 'jeswin', 'github');
 
-INSERT INTO "user"("domain", "username", "provider_username", "provider_name")
+INSERT INTO "provider_user"(
+	"domain", "username", "provider_username", "provider_name"
+)
 	VALUES ('example.com', 'eddie', 'eddiedoesntexist', 'github');
 
 INSERT INTO "role"("domain", "role")
