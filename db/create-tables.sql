@@ -23,9 +23,9 @@ CREATE TABLE "provider_user" (
 
 CREATE TABLE "user_token" (
     "domain" character varying (64) NOT NULL,
-    "token" character varying (512) NOT NULL,
+    "token" character varying (128) NOT NULL,
     "username" character varying (64) NOT NULL,
-    "value" character varying (64) NOT NULL,
+    "value" character varying (128) NOT NULL,
     "created_at" bigint NOT NULL,
     "updated_at" bigint NOT NULL,
     CONSTRAINT "user_token_pkey" 
@@ -36,12 +36,12 @@ CREATE TABLE "user_token" (
 
 CREATE TABLE "role" (
     "domain" character varying (64) NOT NULL,
-    "role" character varying (64) NOT NULL,
+    "name" character varying (64) NOT NULL,
     "description" character varying (512),
     "created_at" bigint NOT NULL,
     "updated_at" bigint NOT NULL,
     CONSTRAINT "role_pkey" 
-        PRIMARY KEY ("domain", "role"));
+        PRIMARY KEY ("domain", "name"));
 
 CREATE TABLE "role_token" (
     "domain" character varying (64) NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE "role_token" (
         PRIMARY KEY ("domain", "token", "role"),
     CONSTRAINT "role_token_role_fkey" 
         FOREIGN KEY ("domain", "role") 
-        REFERENCES "role" ("domain", "role"));
+        REFERENCES "role" ("domain", "name"));
 
 CREATE TABLE "user_role" (
     "domain" character varying (64) NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE "user_role" (
         PRIMARY KEY ("domain", "role", "username"),
     CONSTRAINT "user_role_role_fkey" 
         FOREIGN KEY ("domain", "role") 
-        REFERENCES "role" ("domain", "role"),
+        REFERENCES "role" ("domain", "name"),
     CONSTRAINT "user_role_user_fkey" 
         FOREIGN KEY ("domain", "username") 
         REFERENCES "user" ("domain", "username"));

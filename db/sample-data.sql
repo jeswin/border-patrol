@@ -68,7 +68,7 @@ INSERT INTO "provider_user"(
 
 INSERT INTO "role"(
 	"domain",
-	"role",
+	"name",
 	"created_at",
 	"updated_at"
 )
@@ -81,7 +81,7 @@ INSERT INTO "role"(
 	
 INSERT INTO "role"(
 	"domain",
-	"role",
+	"name",
 	"created_at",
 	"updated_at"
 )
