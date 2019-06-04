@@ -31,7 +31,7 @@ INSERT INTO "user"(
 INSERT INTO "provider_user"(
 	"username",
 	"provider_username",
-	"provider_name",
+	"provider",
 	"created_at",
 	"updated_at"
 )
@@ -46,7 +46,7 @@ INSERT INTO "provider_user"(
 INSERT INTO "provider_user"(
 	"username",
 	"provider_username",
-	"provider_name",
+	"provider",
 	"created_at",
 	"updated_at"
 )

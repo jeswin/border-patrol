@@ -10,11 +10,11 @@ CREATE TABLE "user" (
 CREATE TABLE "provider_user" (
     "username" character varying (64) NOT NULL,
     "provider_username" character varying (128) NOT NULL,
-    "provider_name" character varying (64) NOT NULL,
+    "provider" character varying (64) NOT NULL,
     "created_at" bigint NOT NULL,
     "updated_at" bigint NOT NULL,
     CONSTRAINT "provider_user_pkey" 
-        PRIMARY KEY ("provider_username", "provider_name"),
+        PRIMARY KEY ("provider_username", "provider"),
     CONSTRAINT "provider_user_user_fkey" 
         FOREIGN KEY ("username") 
         REFERENCES "user" ("username"));

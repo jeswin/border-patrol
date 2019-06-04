@@ -8,23 +8,17 @@ export interface IGetJWTResultGitHubError {
   oauthSuccess: false;
 }
 
-export interface IGetJWTResultMissingUser {
+export interface IGetJWTResult {
   oauthSuccess: true;
-  isValidUser: false;
-}
-
-export interface IGetJWTResultSuccess {
-  oauthSuccess: true;
-  isValidUser: true;
+  isValidUser: boolean;
   jwt: string;
 }
 
-export type GetJWTResult =
-  | IGetJWTResultGitHubError
-  | IGetJWTResultMissingUser
-  | IGetJWTResultSuccess;
+export type GetJWTResult = IGetJWTResultGitHubError | IGetJWTResult;
 
-export async function getJWT(accessToken: string): Promise<GetJWTResult> {
+export async function getJWTWithAccessToken(
+  accessToken: string
+): Promise<GetJWTResult> {
   const response = (await httpGet(
     {
       url: `https://api.github.com/user?access_token=${accessToken}`,
@@ -38,7 +32,7 @@ export async function getJWT(accessToken: string): Promise<GetJWTResult> {
   return data.login
     ? await (async () => {
         const token = await user.getJWT(data.login, "github");
-        const result: IGetJWTResultSuccess | IGetJWTResultMissingUser = {
+        const result: IGetJWTResult = {
           oauthSuccess: true,
           ...token
         };

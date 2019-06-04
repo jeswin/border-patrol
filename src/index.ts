@@ -10,7 +10,7 @@ import * as db from "./db";
 import * as jwt from "./domain/jwt";
 import * as config from "./config";
 import { authenticate } from "./api/authenticate";
-import { getUsernameAvailability } from "./api/user";
+import { getUsernameAvailability, updateToken } from "./api/user";
 
 const grant = require("grant-koa");
 
@@ -70,7 +70,11 @@ async function init() {
     router.get(`/oauth/token/${oauthService}`, getJWT(oauthService));
   });
 
-  router.get(`/usernames/:username`, getUsernameAvailability)
+  /* Check if a username is available */
+  router.get(`/usernames/:username`, getUsernameAvailability);
+
+  /* Update an invalid token */
+  router.get(`/token`, updateToken);
 
   // Start app
   var app = new Koa();

@@ -26,19 +26,19 @@ export type GetUsernameResult =
 
 export async function getUsername(
   providerUsername: string,
-  providerName: string
+  provider: string
 ): Promise<GetUsernameResult> {
   const pool = getPool();
 
   const params = new pg.Params({
     providerUsername,
-    providerName
+    provider
   });
 
   const { rows } = await pool.query(
     `SELECT username FROM "provider_user" WHERE provider_username=${params.id(
       "providerUsername"
-    )} AND provider_name=${params.id("providerName")}`,
+    )} AND provider=${params.id("provider")}`,
     params.values()
   );
 
@@ -70,7 +70,9 @@ export async function getRoles(username: string): Promise<string[]> {
 export type getTokensForUserResult = { [key: string]: string };
 
 export async function getTokensForUser(
-  username: string
+  username: string,
+  providerUsername: string,
+  provider: string
 ): Promise<getTokensForUserResult> {
   const pool = getPool();
 
@@ -100,6 +102,8 @@ export async function getTokensForUser(
 
   return {
     username,
+    providerUsername,
+    provider,
     roles,
     ...userTokenRows
       .concat(roleTokenRows)
@@ -107,35 +111,34 @@ export async function getTokensForUser(
   };
 }
 
-export interface IGetJWTResultSuccess {
-  isValidUser: true;
+export interface IGetJWTResult {
+  isValidUser: boolean;
   jwt: string;
 }
 
-export interface IGetJWTResultMissingUser {
-  isValidUser: false;
-}
-
-export type GetJWTResult = IGetJWTResultSuccess | IGetJWTResultMissingUser;
-
 export async function getJWT(
   providerUsername: string,
-  providerName: string
-): Promise<GetJWTResult> {
-  const getUsernameResult = await getUsername(providerUsername, providerName);
+  provider: string
+): Promise<IGetJWTResult> {
+  const getUsernameResult = await getUsername(providerUsername, provider);
 
   return getUsernameResult.isValidUser
     ? await (async () => {
         const username = getUsernameResult.username;
-        const tokensForUser = await getTokensForUser(username);
+        const tokensForUser = await getTokensForUser(
+          username,
+          providerUsername,
+          provider
+        );
         const jwt = sign(tokensForUser);
 
         return {
           isValidUser: true,
           jwt
-        } as IGetJWTResultSuccess;
+        };
       })()
-    : ({
-        isValidUser: false
-      } as IGetJWTResultMissingUser);
+    : {
+        isValidUser: false,
+        jwt: sign({ providerUsername, provider })
+      };
 }
