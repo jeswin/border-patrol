@@ -2,6 +2,21 @@ import { sign } from "./jwt";
 import * as pg from "psychopiggy";
 import { getPool } from "../db";
 
+export async function getUsernameAvailability(
+  username: string
+): Promise<{ exists: boolean }> {
+  const pool = getPool();
+
+  const params = new pg.Params({ username });
+
+  const { rows } = await pool.query(
+    `SELECT username FROM "user" WHERE username=${params.id("username")}`,
+    params.values()
+  );
+
+  return { exists: rows.length !== 0 };
+}
+
 export type GetUsernameResult =
   | {
       isValidUser: true;

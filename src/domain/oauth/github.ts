@@ -16,8 +16,7 @@ export interface IGetJWTResultMissingUser {
 export interface IGetJWTResultSuccess {
   oauthSuccess: true;
   isValidUser: true;
-  jwt
-  : string;
+  jwt: string;
 }
 
 export type GetJWTResult =
@@ -25,9 +24,7 @@ export type GetJWTResult =
   | IGetJWTResultMissingUser
   | IGetJWTResultSuccess;
 
-export async function getJWT(
-  accessToken: string
-): Promise<GetJWTResult> {
+export async function getJWT(accessToken: string): Promise<GetJWTResult> {
   const response = (await httpGet(
     {
       url: `https://api.github.com/user?access_token=${accessToken}`,

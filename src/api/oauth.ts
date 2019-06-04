@@ -5,12 +5,22 @@ import * as config from "../config";
 
 export function getJWT(providerName: string) {
   return async (ctx: IRouterContext) => {
-    const redirectUrl = ctx.cookies.get("jwt_auth_service_redirect");
-    if (!redirectUrl) {
+    const successRedirectUrl = ctx.cookies.get(
+      "jwt-auth-service-success-redirect"
+    );
+    const newuserRedirectUrl = ctx.cookies.get(
+      "jwt-auth-service-newuser-redirect"
+    );
+    if (!successRedirectUrl) {
       ctx.status = 400;
       ctx.body =
-        "Invalid request. jwt_auth_service_redirect was missing in cookie.";
+        "Invalid request. jwt-auth-service-success-redirect was missing in cookie.";
+    } else if (!newuserRedirectUrl) {
+      ctx.status = 400;
+      ctx.body =
+        "Invalid request. jwt-auth-service-newuser-redirect was missing in cookie.";
     } else {
+      const domain = config.get().domain;
       const tokenGrant = ctx.session.grant;
       const result =
         providerName === "github"
@@ -18,12 +28,12 @@ export function getJWT(providerName: string) {
           : error("Invalid oauth service selected.");
       if (result.oauthSuccess) {
         if (result.isValidUser) {
-          ctx.cookies.set("jwt_auth_service_token", result.jwt, {
-            domain: config.get().domain
+          ctx.cookies.set("jwt-auth-service-token", result.jwt, {
+            domain
           });
-          ctx.redirect(redirectUrl);
+          ctx.redirect(successRedirectUrl);
         } else {
-          // TODO
+          ctx.redirect("/");
         }
       } else {
         // TODO

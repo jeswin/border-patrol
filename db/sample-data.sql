@@ -1,5 +1,4 @@
 INSERT INTO "user"(
-	"domain",
 	"username",
 	"first_name",
 	"last_name",
@@ -7,7 +6,6 @@ INSERT INTO "user"(
 	"updated_at"
 )
 	VALUES (
-		'example.com',
 		'jeswin',
 		'Jeswin',
 		'Kumar',
@@ -16,7 +14,6 @@ INSERT INTO "user"(
 	);
 
 INSERT INTO "user"(
-	"domain",
 	"username",
 	"first_name",
 	"last_name",
@@ -24,7 +21,6 @@ INSERT INTO "user"(
 	"updated_at"
 )
 	VALUES (
-		'example.com',
 		'eddie',
 		'Eddie',
 		'Noname',
@@ -33,7 +29,6 @@ INSERT INTO "user"(
 	);
 
 INSERT INTO "provider_user"(
-	"domain",
 	"username",
 	"provider_username",
 	"provider_name",
@@ -41,7 +36,6 @@ INSERT INTO "provider_user"(
 	"updated_at"
 )
 	VALUES (
-		'example.com',
 		'jeswin',
 		'jeswin',
 		'github',
@@ -50,7 +44,6 @@ INSERT INTO "provider_user"(
 	);
 
 INSERT INTO "provider_user"(
-	"domain",
 	"username",
 	"provider_username",
 	"provider_name",
@@ -58,7 +51,6 @@ INSERT INTO "provider_user"(
 	"updated_at"
 )
 	VALUES (
-		'example.com',
 		'eddie',
 		'eddiedoesntexist',
 		'github',
@@ -67,40 +59,34 @@ INSERT INTO "provider_user"(
 	);
 
 INSERT INTO "role"(
-	"domain",
 	"name",
 	"created_at",
 	"updated_at"
 )
 	VALUES (
-		'example.com',
 		'coreteam',
 		1559302695646,
 		1559302695646
 	);
 	
 INSERT INTO "role"(
-	"domain",
 	"name",
 	"created_at",
 	"updated_at"
 )
 	VALUES (
-		'example.com',
 		'admin',
 		1559302695646,
 		1559302695646
 	);
 	
 INSERT INTO "user_role"(
-	"domain",
 	"role",
 	"username",
 	"created_at",
 	"updated_at"
 )
 	VALUES (
-		'example.com',
 		'coreteam',
 		'jeswin',
 		1559302695646,
@@ -108,14 +94,12 @@ INSERT INTO "user_role"(
 	);
 
 INSERT INTO "user_role"(
-	"domain",
 	"role",
 	"username",
 	"created_at",
 	"updated_at"
 	)
 	VALUES (
-		'example.com',
 		'admin',
 		'jeswin',
 		1559302695646,
@@ -123,14 +107,12 @@ INSERT INTO "user_role"(
 	);
 
 INSERT INTO "user_role"(
-	"domain",
 	"role",
 	"username",
 	"created_at",
 	"updated_at"
 )
 	VALUES (
-		'example.com',
 		'admin',
 		'eddie',
 		1559302695646,
@@ -138,7 +120,6 @@ INSERT INTO "user_role"(
 	);
 
 INSERT INTO "user_token"(
-	"domain",
 	"token",
 	"username",
 	"value",
@@ -146,7 +127,6 @@ INSERT INTO "user_token"(
 	"updated_at"
 )
 	VALUES (
-		'example.com',
 		'full',
 		'jeswin',
 		'yes',
@@ -155,7 +135,6 @@ INSERT INTO "user_token"(
 	);
 	
 INSERT INTO "role_token"(
-	"domain",
 	"token",
 	"role",
 	"value",
@@ -163,7 +142,6 @@ INSERT INTO "role_token"(
 	"updated_at"
 )
 	VALUES (
-		'example.com',
 		'dashboard',
 		'admin',
 		'yes',

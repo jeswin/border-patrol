@@ -10,6 +10,7 @@ import * as db from "./db";
 import * as jwt from "./domain/jwt";
 import * as config from "./config";
 import { authenticate } from "./api/authenticate";
+import { getUsernameAvailability } from "./api/user";
 
 const grant = require("grant-koa");
 
@@ -55,7 +56,7 @@ async function init() {
 
   const enabledOAuthServices = process.env.ENABLED_OAUTH_SERVICES
     ? process.env.ENABLED_OAUTH_SERVICES.split(",")
-    : ["github"];
+    : ["github", "google"];
 
   const allServices = (enablePasswordAuth ? ["login"] : []).concat(
     enabledOAuthServices
@@ -68,6 +69,8 @@ async function init() {
   enabledOAuthServices.forEach(oauthService => {
     router.get(`/oauth/token/${oauthService}`, getJWT(oauthService));
   });
+
+  router.get(`/usernames/:username`, getUsernameAvailability)
 
   // Start app
   var app = new Koa();
