@@ -12,8 +12,8 @@ export async function getUsernameAvailability(ctx: IRouterContext) {
 
 export async function createUser(ctx: IRouterContext) {
   const config = configModule.get();
-  const jwtInCookie = ctx.cookies.get("jwt-auth-service-token");
-  const jwtInHeader = ctx.headers["jwt-auth-service-token"];
+  const jwtInCookie = ctx.cookies.get("jwt-auth-service-jwt");
+  const jwtInHeader = ctx.headers["jwt-auth-service-jwt"];
 
   return jwtInCookie && jwtInHeader && jwtInCookie !== jwtInHeader
     ? /* JWT values in the cookie and the header are mismatched */
@@ -42,7 +42,7 @@ export async function createUser(ctx: IRouterContext) {
                       ? (() => {
                           if (jwtInCookie) {
                             ctx.cookies.set(
-                              "jwt-auth-service-token",
+                              "jwt-auth-service-jwt",
                               createUserResult.jwt,
                               {
                                 domain: config.domain,
@@ -58,7 +58,7 @@ export async function createUser(ctx: IRouterContext) {
                           }
                           if (jwtInHeader) {
                             ctx.body = {
-                              "jwt-auth-service-token": createUserResult.jwt,
+                              "jwt-auth-service-jwt": createUserResult.jwt,
                               "jwt-auth-service-username":
                                 createUserResult.tokens.username
                             };

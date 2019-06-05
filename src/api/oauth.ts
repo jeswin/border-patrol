@@ -32,7 +32,7 @@ export function getJWT(provider: string) {
               : error("Invalid oauth service selected.");
 
           if (result.oauthSuccess) {
-            ctx.cookies.set("jwt-auth-service-token", result.jwt, {
+            ctx.cookies.set("jwt-auth-service-jwt", result.jwt, {
               domain,
               httpOnly: config.cookies.httpOnly,
               maxAge: config.cookies.maxAge,

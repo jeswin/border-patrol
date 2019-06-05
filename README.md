@@ -30,4 +30,4 @@ An example directory containing config files (which are JS files) can be found u
 
 ## Authenticating
 
-Send the browser to YOUR_DOMAIN/authenticate/OAUTH_SERVICE?redirect=SOME_URL. For example: www.example.com/authenticate/github?redirect=docs.example.com. The page will redirect to docs.example.com after authentication with the 'jwt-auth-service-token' cookie set to the JWT token.
+Send the browser to YOUR_DOMAIN/authenticate/OAUTH_SERVICE?redirect=SOME_URL. For example: www.example.com/authenticate/github?redirect=docs.example.com. The page will redirect to docs.example.com after authentication with the 'jwt-auth-service-jwt' cookie set to the JWT token.
