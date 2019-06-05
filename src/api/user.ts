@@ -1,7 +1,7 @@
 import * as user from "../domain/user";
 import { IRouterContext } from "koa-router";
 import { verify } from "../domain/jwt";
-import * as config from "../config";
+import * as configModule from "../config";
 
 export async function getUsernameAvailability(ctx: IRouterContext) {
   const result = await user.getUsernameAvailability(ctx.params.username);
@@ -11,6 +11,7 @@ export async function getUsernameAvailability(ctx: IRouterContext) {
 }
 
 export async function createUser(ctx: IRouterContext) {
+  const config = configModule.get();
   const jwtInCookie = ctx.cookies.get("jwt-auth-service-token");
   const jwtInHeader = ctx.headers["jwt-auth-service-token"];
 
@@ -32,20 +33,23 @@ export async function createUser(ctx: IRouterContext) {
                 ? /* Invalid JWT */
                   ((ctx.status = 400), (ctx.body = "Invalid JWT token."))
                 : await (async () => {
+                    const { username } = ctx.request.body;
                     const createUserResult = await user.createUser(
-                      ctx.body.username,
+                      ctx.request.body.username,
                       result.value.providerUsername,
                       result.value.provider
                     );
                     return createUserResult.created
                       ? (() => {
-                          const domain = config.get().domain;
                           if (jwtInCookie) {
                             ctx.cookies.set(
                               "jwt-auth-service-token",
                               createUserResult.jwt,
                               {
-                                domain
+                                domain: config.domain,
+                                httpOnly: config.cookies.httpOnly,
+                                maxAge: config.cookies.maxAge,
+                                overwrite: true
                               }
                             );
                           }

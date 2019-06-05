@@ -1,5 +1,9 @@
 export interface IConfig {
   domain: string;
+  cookies: {
+    httpOnly: boolean;
+    maxAge: number;
+  }
 }
 
 let config: IConfig;

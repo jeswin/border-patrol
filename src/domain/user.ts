@@ -89,16 +89,22 @@ export async function getTokensForUser(
 
   const roles = await getRoles(username);
 
-  const roleTokenParams = new pg.Params({
-    ...roles
-  });
+  const roleTokenRows = roles.length
+    ? await (async () => {
+        const roleTokenParams = new pg.Params({
+          ...roles
+        });
 
-  const { rows: roleTokenRows } = await pool.query(
-    `SELECT token, value 
-      FROM role_token 
-      WHERE role IN (${roleTokenParams.ids()})`,
-    roleTokenParams.values()
-  );
+        const { rows: roleTokenRows } = await pool.query(
+          `SELECT token, value 
+            FROM role_token 
+            WHERE role IN (${roleTokenParams.ids()})`,
+          roleTokenParams.values()
+        );
+
+        return roleTokenRows;
+      })
+    : [];
 
   return {
     username,
@@ -169,9 +175,7 @@ export async function createUser(
           });
 
           await client.query(
-            `INSERT INTO "user" (${
-              insertUserParams.columns
-            }) VALUES (${insertUserParams.ids()})`,
+            `INSERT INTO "user" (${insertUserParams.columns()}) VALUES (${insertUserParams.ids()})`,
             insertUserParams.values()
           );
 
@@ -184,9 +188,7 @@ export async function createUser(
           });
 
           await client.query(
-            `INSERT INTO "provider_user" (${
-              insertProviderUserParams.columns
-            }) VALUES (${insertProviderUserParams.ids()})`,
+            `INSERT INTO "provider_user" (${insertProviderUserParams.columns()}) VALUES (${insertProviderUserParams.ids()})`,
             insertProviderUserParams.values()
           );
 

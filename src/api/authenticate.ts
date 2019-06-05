@@ -7,7 +7,7 @@ const oauthServices = ["github"];
 function isInDomain(url: string) {
   const hostname = urlModule.parse(url).host;
   const domain = config.get().domain;
-  return hostname === domain || url.endsWith(`.${domain}`);
+  return hostname && (hostname === domain || hostname.endsWith(`.${domain}`));
 }
 
 export function authenticate(service: string) {

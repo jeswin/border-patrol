@@ -4,13 +4,14 @@ import Koa = require("koa");
 import session = require("koa-session");
 import mount = require("koa-mount");
 import Router = require("koa-router");
+import bodyParser = require("koa-bodyparser");
 import { getJWT } from "./api/oauth";
 import { join } from "path";
 import * as db from "./db";
 import * as jwt from "./domain/jwt";
 import * as config from "./config";
 import { authenticate } from "./api/authenticate";
-import { getUsernameAvailability, updateToken } from "./api/user";
+import { getUsernameAvailability, createUser } from "./api/user";
 
 const grant = require("grant-koa");
 
@@ -41,7 +42,8 @@ async function init() {
   db.init(dbConfig);
   jwt.init(jwtConfig);
   config.init({
-    domain: process.env.DOMAIN
+    domain: process.env.DOMAIN,
+    cookies: appConfig.cookies
   });
 
   // Set up routes
@@ -80,12 +82,13 @@ async function init() {
 
   // Start app
   var app = new Koa();
+  app.use(bodyParser());
   app.keys = appConfig.APP_KEYS.split(",");
   app.use(session(app));
   app.use(mount(grant(oauthConfig)));
   app.use(router.routes());
   app.use(router.allowedMethods());
-
+  
   const port = process.env.PORT;
   app.listen(parseInt(port));
 

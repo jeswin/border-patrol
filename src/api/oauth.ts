@@ -1,9 +1,10 @@
 import { IRouterContext } from "koa-router";
 import * as github from "../domain/oauth/github";
 import error from "../error";
-import * as config from "../config";
+import * as configModule from "../config";
 
 export function getJWT(provider: string) {
+  const config = configModule.get();
   return async (ctx: IRouterContext) => {
     const successRedirectUrl = ctx.cookies.get(
       "jwt-auth-service-success-redirect"
@@ -21,7 +22,7 @@ export function getJWT(provider: string) {
         (ctx.body =
           "Invalid request. jwt-auth-service-newuser-redirect was missing in cookie."))
       : await (async () => {
-          const domain = config.get().domain;
+          const domain = configModule.get().domain;
           const tokenGrant = ctx.session.grant;
           const result =
             provider === "github"
@@ -31,14 +32,15 @@ export function getJWT(provider: string) {
               : error("Invalid oauth service selected.");
 
           if (result.oauthSuccess) {
-            if (result.isValidUser) {
-              ctx.cookies.set("jwt-auth-service-token", result.jwt, {
-                domain
-              });
-              ctx.redirect(successRedirectUrl);
-            } else {
-              ctx.redirect(newuserRedirectUrl);
-            }
+            ctx.cookies.set("jwt-auth-service-token", result.jwt, {
+              domain,
+              httpOnly: config.cookies.httpOnly,
+              maxAge: config.cookies.maxAge,
+              overwrite: true
+            });
+            ctx.redirect(
+              result.isValidUser ? successRedirectUrl : newuserRedirectUrl
+            );
           } else {
             // TODO
           }
