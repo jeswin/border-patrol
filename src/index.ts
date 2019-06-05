@@ -62,10 +62,12 @@ async function init() {
     enabledOAuthServices
   );
 
+  /* Entry point for all auth services */
   allServices.forEach(service => {
     router.get(`/authenticate/${service}`, authenticate(service));
   });
 
+  /* OAuth services need a callback */
   enabledOAuthServices.forEach(oauthService => {
     router.get(`/oauth/token/${oauthService}`, getJWT(oauthService));
   });
@@ -73,8 +75,8 @@ async function init() {
   /* Check if a username is available */
   router.get(`/usernames/:username`, getUsernameAvailability);
 
-  /* Update an invalid token */
-  router.get(`/token`, updateToken);
+  /* Create a new user */
+  router.post(`/users`, createUser);
 
   // Start app
   var app = new Koa();

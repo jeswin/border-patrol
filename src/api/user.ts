@@ -10,7 +10,7 @@ export async function getUsernameAvailability(ctx: IRouterContext) {
   };
 }
 
-export async function updateToken(ctx: IRouterContext) {
+export async function createUser(ctx: IRouterContext) {
   const jwtInCookie = ctx.cookies.get("jwt-auth-service-token");
   const jwtInHeader = ctx.headers["jwt-auth-service-token"];
 
@@ -32,18 +32,18 @@ export async function updateToken(ctx: IRouterContext) {
                 ? /* Invalid JWT */
                   ((ctx.status = 400), (ctx.body = "Invalid JWT token."))
                 : await (async () => {
-                    const jwtResult = await user.getJWT(
+                    const createUserResult = await user.createUser(
+                      ctx.body.username,
                       result.value.providerUsername,
                       result.value.provider
                     );
-                    return jwtResult.isValidUser
-                      ? /* JWT user exists in the DB */
-                        (() => {
+                    return createUserResult.created
+                      ? (() => {
                           const domain = config.get().domain;
                           if (jwtInCookie) {
                             ctx.cookies.set(
                               "jwt-auth-service-token",
-                              jwtResult.jwt,
+                              createUserResult.jwt,
                               {
                                 domain
                               }
@@ -51,14 +51,12 @@ export async function updateToken(ctx: IRouterContext) {
                           }
                           if (jwtInHeader) {
                             ctx.body = {
-                              "jwt-auth-service-token": jwtResult.jwt
+                              "jwt-auth-service-token": createUserResult.jwt
                             };
                           }
                         })()
-                      : /* Missing user. Maybe not written yet? */
-                        ((ctx.status = 400),
-                        (ctx.body =
-                          "The JWT token could not be upgraded because the user does not exist."));
+                      : ((ctx.status = 400),
+                        (ctx.body = createUserResult.reason));
                   })();
             })();
       })();

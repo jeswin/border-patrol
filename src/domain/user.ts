@@ -142,3 +142,43 @@ export async function getJWT(
         jwt: sign({ providerUsername, provider })
       };
 }
+
+export type CreateUserResult =
+  | {
+      created: false;
+      reason: "USER_EXISTS";
+    }
+  | { created: true; jwt: string };
+
+export async function createUser(
+  username: string,
+  providerUsername: string,
+  provider: string
+): Promise<CreateUserResult> {
+  const getUsernameResult = await getUsername(providerUsername, provider);
+  return getUsernameResult.isValidUser
+    ? { created: false as false, reason: "USER_EXISTS" }
+    : await (async () => {
+        const pool = getPool();
+
+        const insertUserParams = new pg.Params({
+          username,
+          first_name: "NA",
+          last_name: "NA",
+          created_at: Date.now(),
+          updated_at: Date.now()
+        });
+
+        await pool.query(
+          `INSERT INTO "user" (${
+            insertUserParams.columns
+          }) VALUES (${insertUserParams.ids()})`,
+          insertUserParams.values()
+        );
+
+        return {
+          created: true as true,
+          jwt: sign({ username, providerUsername, provider, roles: [] })
+        };
+      })();
+}

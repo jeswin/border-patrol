@@ -29,6 +29,7 @@ export function getJWT(provider: string) {
                   tokenGrant.response.access_token
                 )
               : error("Invalid oauth service selected.");
+
           if (result.oauthSuccess) {
             if (result.isValidUser) {
               ctx.cookies.set("jwt-auth-service-token", result.jwt, {
@@ -36,7 +37,7 @@ export function getJWT(provider: string) {
               });
               ctx.redirect(successRedirectUrl);
             } else {
-              ctx.redirect("/");
+              ctx.redirect(newuserRedirectUrl);
             }
           } else {
             // TODO
