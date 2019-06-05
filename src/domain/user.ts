@@ -1,4 +1,4 @@
-import { sign } from "./jwt";
+import { sign } from "../utils/jwt";
 import * as pg from "psychopiggy";
 import { getPool, withTransaction } from "../db";
 

@@ -8,7 +8,7 @@ import bodyParser = require("koa-bodyparser");
 import { getTokens } from "./api/oauth";
 import { join } from "path";
 import * as db from "./db";
-import * as jwt from "./domain/jwt";
+import * as jwt from "./utils/jwt";
 import * as config from "./config";
 import { authenticate } from "./api/authenticate";
 import { getUsernameAvailability, createUser } from "./api/user";

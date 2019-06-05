@@ -2,9 +2,11 @@ import { IRouterContext } from "koa-router";
 import * as github from "../domain/oauth/github";
 import error from "../error";
 import * as configModule from "../config";
+import { setCookie, clearCookie } from "../utils/cookie";
 
 export function getTokens(provider: string) {
   const config = configModule.get();
+
   return async (ctx: IRouterContext) => {
     const successRedirectUrl = ctx.cookies.get(
       "jwt-auth-service-success-redirect"
@@ -12,6 +14,10 @@ export function getTokens(provider: string) {
     const newuserRedirectUrl = ctx.cookies.get(
       "jwt-auth-service-newuser-redirect"
     );
+
+    // Clear the cookies. We don't need them anymore.
+    clearCookie(ctx, "jwt-auth-service-success-redirect");
+    clearCookie(ctx, "jwt-auth-service-newuser-redirect");
 
     return !successRedirectUrl
       ? ((ctx.status = 400),
@@ -32,28 +38,9 @@ export function getTokens(provider: string) {
               : error("Invalid oauth service selected.");
 
           if (result.oauthSuccess) {
-            ctx.cookies.set("jwt-auth-service-jwt", result.jwt, {
-              domain,
-              httpOnly: config.cookies.httpOnly,
-              maxAge: config.cookies.maxAge,
-              overwrite: true
-            });
-            ctx.cookies.set(
-              "jwt-auth-service-username",
-              result.tokens.username,
-              {
-                domain,
-                httpOnly: config.cookies.httpOnly,
-                maxAge: config.cookies.maxAge,
-                overwrite: true
-              }
-            );
-            ctx.cookies.set("jwt-auth-service-domain", config.domain, {
-              domain,
-              httpOnly: config.cookies.httpOnly,
-              maxAge: config.cookies.maxAge,
-              overwrite: true
-            });
+            setCookie(ctx, "jwt-auth-service-jwt", result.jwt);
+            setCookie(ctx, "jwt-auth-service-username", result.tokens.username);
+            setCookie(ctx, "jwt-auth-service-domain", config.domain);
             ctx.redirect(
               result.isValidUser ? successRedirectUrl : newuserRedirectUrl
             );

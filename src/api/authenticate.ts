@@ -1,6 +1,7 @@
 import urlModule = require("url");
 import { IRouterContext } from "koa-router";
 import * as config from "../config";
+import { setTempCookie } from "../utils/cookie";
 
 const oauthServices = ["github"];
 
@@ -35,12 +36,16 @@ export function authenticate(service: string) {
       ? ((ctx.status = 400),
         (ctx.body =
           "New user redirect must be a url within the application's domain."))
-      : (ctx.cookies.set("jwt-auth-service-success-redirect", successRedirect, {
-          domain
-        }),
-        ctx.cookies.set("jwt-auth-service-newuser-redirect", newuserRedirect, {
-          domain
-        }),
+      : (setTempCookie(
+          ctx,
+          "jwt-auth-service-success-redirect",
+          successRedirect
+        ),
+        setTempCookie(
+          ctx,
+          "jwt-auth-service-newuser-redirect",
+          newuserRedirect
+        ),
         ctx.redirect(`/connect/${service}`));
   };
 }

@@ -1,7 +1,8 @@
 import * as user from "../domain/user";
 import { IRouterContext } from "koa-router";
-import { verify } from "../domain/jwt";
+import { verify } from "../utils/jwt";
 import * as configModule from "../config";
+import { setCookie } from "../utils/cookie";
 
 export async function getUsernameAvailability(ctx: IRouterContext) {
   const result = await user.getUsernameAvailability(ctx.params.username);
@@ -41,21 +42,18 @@ export async function createUser(ctx: IRouterContext) {
                     return createUserResult.created
                       ? (() => {
                           if (jwtInCookie) {
-                            ctx.cookies.set(
+                            setCookie(
+                              ctx,
                               "jwt-auth-service-jwt",
-                              createUserResult.jwt,
-                              {
-                                domain: config.domain,
-                                httpOnly: config.cookies.httpOnly,
-                                maxAge: config.cookies.maxAge,
-                                overwrite: true
-                              }
+                              createUserResult.jwt
                             );
-                            ctx.cookies.set(
+                            setCookie(
+                              ctx,
                               "jwt-auth-service-username",
                               createUserResult.tokens.username
                             );
-                            ctx.cookies.set(
+                            setCookie(
+                              ctx,
                               "jwt-auth-service-domain",
                               config.domain
                             );
