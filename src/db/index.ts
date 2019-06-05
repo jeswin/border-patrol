@@ -1,3 +1,4 @@
+import * as pg from "pg";
 import * as psychopiggy from "psychopiggy";
 
 export interface IPGConfig {
@@ -26,4 +27,10 @@ export function getConfig() {
 
 export function getPool() {
   return psychopiggy.getPool(config);
+}
+
+export async function withTransaction<T>(
+  fn: (client: pg.PoolClient) => Promise<T>
+) {
+  return await psychopiggy.withTransaction(fn, config);
 }

@@ -1,6 +1,6 @@
 import { sign } from "./jwt";
 import * as pg from "psychopiggy";
-import { getPool } from "../db";
+import { getPool, withTransaction } from "../db";
 
 export async function getUsernameAvailability(
   username: string
@@ -146,7 +146,7 @@ export async function getJWT(
 export type CreateUserResult =
   | {
       created: false;
-      reason: "USER_EXISTS";
+      reason: string;
     }
   | { created: true; jwt: string };
 
@@ -157,28 +157,50 @@ export async function createUser(
 ): Promise<CreateUserResult> {
   const getUsernameResult = await getUsername(providerUsername, provider);
   return getUsernameResult.isValidUser
-    ? { created: false as false, reason: "USER_EXISTS" }
+    ? { created: false as false, reason: "User already exists." }
     : await (async () => {
-        const pool = getPool();
+        const committed = await withTransaction(async client => {
+          const insertUserParams = new pg.Params({
+            username,
+            first_name: "NA",
+            last_name: "NA",
+            created_at: Date.now(),
+            updated_at: Date.now()
+          });
 
-        const insertUserParams = new pg.Params({
-          username,
-          first_name: "NA",
-          last_name: "NA",
-          created_at: Date.now(),
-          updated_at: Date.now()
+          await client.query(
+            `INSERT INTO "user" (${
+              insertUserParams.columns
+            }) VALUES (${insertUserParams.ids()})`,
+            insertUserParams.values()
+          );
+
+          const insertProviderUserParams = new pg.Params({
+            username,
+            provider_username: providerUsername,
+            provider,
+            created_at: Date.now(),
+            updated_at: Date.now()
+          });
+
+          await client.query(
+            `INSERT INTO "provider_user" (${
+              insertProviderUserParams.columns
+            }) VALUES (${insertProviderUserParams.ids()})`,
+            insertProviderUserParams.values()
+          );
+
+          return true;
         });
 
-        await pool.query(
-          `INSERT INTO "user" (${
-            insertUserParams.columns
-          }) VALUES (${insertUserParams.ids()})`,
-          insertUserParams.values()
-        );
-
-        return {
-          created: true as true,
-          jwt: sign({ username, providerUsername, provider, roles: [] })
-        };
+        return committed
+          ? {
+              created: true as true,
+              jwt: sign({ username, providerUsername, provider, roles: [] })
+            }
+          : {
+              created: false as false,
+              reason: "Could not create the new user."
+            };
       })();
 }
