@@ -8,17 +8,18 @@ export interface IGetJWTResultGitHubError {
   oauthSuccess: false;
 }
 
-export interface IGetJWTResult {
+export interface IGetTokensResult {
   oauthSuccess: true;
   isValidUser: boolean;
   jwt: string;
+  tokens: { [key: string]: string };
 }
 
-export type GetJWTResult = IGetJWTResultGitHubError | IGetJWTResult;
+export type GetTokensResult = IGetJWTResultGitHubError | IGetTokensResult;
 
-export async function getJWTWithAccessToken(
+export async function getTokensWithAccessToken(
   accessToken: string
-): Promise<GetJWTResult> {
+): Promise<GetTokensResult> {
   const response = (await httpGet(
     {
       url: `https://api.github.com/user?access_token=${accessToken}`,
@@ -31,10 +32,10 @@ export async function getJWTWithAccessToken(
 
   return data.login
     ? await (async () => {
-        const token = await user.getJWT(data.login, "github");
-        const result: IGetJWTResult = {
+        const tokensResult = await user.getTokens(data.login, "github");
+        const result: IGetTokensResult = {
           oauthSuccess: true,
-          ...token
+          ...tokensResult
         };
         return result;
       })()

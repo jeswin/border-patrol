@@ -26,7 +26,7 @@ export function getJWT(provider: string) {
           const tokenGrant = ctx.session.grant;
           const result =
             provider === "github"
-              ? await github.getJWTWithAccessToken(
+              ? await github.getTokensWithAccessToken(
                   tokenGrant.response.access_token
                 )
               : error("Invalid oauth service selected.");
@@ -38,6 +38,10 @@ export function getJWT(provider: string) {
               maxAge: config.cookies.maxAge,
               overwrite: true
             });
+            ctx.cookies.set(
+              "jwt-auth-service-username",
+              result.tokens.username
+            );
             ctx.redirect(
               result.isValidUser ? successRedirectUrl : newuserRedirectUrl
             );

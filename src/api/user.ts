@@ -33,7 +33,6 @@ export async function createUser(ctx: IRouterContext) {
                 ? /* Invalid JWT */
                   ((ctx.status = 400), (ctx.body = "Invalid JWT token."))
                 : await (async () => {
-                    const { username } = ctx.request.body;
                     const createUserResult = await user.createUser(
                       ctx.request.body.username,
                       result.value.providerUsername,
@@ -52,10 +51,16 @@ export async function createUser(ctx: IRouterContext) {
                                 overwrite: true
                               }
                             );
+                            ctx.cookies.set(
+                              "jwt-auth-service-username",
+                              createUserResult.tokens.username
+                            );
                           }
                           if (jwtInHeader) {
                             ctx.body = {
-                              "jwt-auth-service-token": createUserResult.jwt
+                              "jwt-auth-service-token": createUserResult.jwt,
+                              "jwt-auth-service-username":
+                                createUserResult.tokens.username
                             };
                           }
                         })()

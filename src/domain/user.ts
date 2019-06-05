@@ -106,26 +106,29 @@ export async function getTokensForUser(
       })
     : [];
 
+  const tokens: { [key: string]: string } = userTokenRows
+    .concat(roleTokenRows)
+    .reduce((acc, i) => ((acc[i.token] = i.value), acc), {});
+
   return {
     username,
     providerUsername,
     provider,
-    roles,
-    ...userTokenRows
-      .concat(roleTokenRows)
-      .reduce((acc, i) => ((acc[i.token] = i.value), acc), {})
+    roles: roles.join(","),
+    ...tokens
   };
 }
 
-export interface IGetJWTResult {
+export interface IGetTokensResult {
   isValidUser: boolean;
   jwt: string;
+  tokens: { [key: string]: string };
 }
 
-export async function getJWT(
+export async function getTokens(
   providerUsername: string,
   provider: string
-): Promise<IGetJWTResult> {
+): Promise<IGetTokensResult> {
   const getUsernameResult = await getUsername(providerUsername, provider);
 
   return getUsernameResult.isValidUser
@@ -136,16 +139,16 @@ export async function getJWT(
           providerUsername,
           provider
         );
-        const jwt = sign(tokensForUser);
-
         return {
           isValidUser: true,
-          jwt
+          jwt: sign(tokensForUser),
+          tokens: tokensForUser
         };
       })()
     : {
         isValidUser: false,
-        jwt: sign({ providerUsername, provider })
+        jwt: sign({ providerUsername, provider }),
+        tokens: { providerUsername, provider }
       };
 }
 
@@ -154,7 +157,11 @@ export type CreateUserResult =
       created: false;
       reason: string;
     }
-  | { created: true; jwt: string };
+  | {
+      created: true;
+      jwt: string;
+      tokens: { [key: string]: string };
+    };
 
 export async function createUser(
   username: string,
@@ -198,7 +205,8 @@ export async function createUser(
         return committed
           ? {
               created: true as true,
-              jwt: sign({ username, providerUsername, provider, roles: [] })
+              jwt: sign({ username, providerUsername, provider, roles: "" }),
+              tokens: { username, providerUsername, provider, roles: "" }
             }
           : {
               created: false as false,
