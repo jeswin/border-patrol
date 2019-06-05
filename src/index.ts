@@ -5,7 +5,7 @@ import session = require("koa-session");
 import mount = require("koa-mount");
 import Router = require("koa-router");
 import bodyParser = require("koa-bodyparser");
-import { getJWT } from "./api/oauth";
+import { getTokens } from "./api/oauth";
 import { join } from "path";
 import * as db from "./db";
 import * as jwt from "./domain/jwt";
@@ -71,7 +71,7 @@ async function init() {
 
   /* OAuth services need a callback */
   enabledOAuthServices.forEach(oauthService => {
-    router.get(`/oauth/token/${oauthService}`, getJWT(oauthService));
+    router.get(`/oauth/token/${oauthService}`, getTokens(oauthService));
   });
 
   /* Check if a username is available */

@@ -3,7 +3,7 @@ import * as github from "../domain/oauth/github";
 import error from "../error";
 import * as configModule from "../config";
 
-export function getJWT(provider: string) {
+export function getTokens(provider: string) {
   const config = configModule.get();
   return async (ctx: IRouterContext) => {
     const successRedirectUrl = ctx.cookies.get(
@@ -40,8 +40,20 @@ export function getJWT(provider: string) {
             });
             ctx.cookies.set(
               "jwt-auth-service-username",
-              result.tokens.username
+              result.tokens.username,
+              {
+                domain,
+                httpOnly: config.cookies.httpOnly,
+                maxAge: config.cookies.maxAge,
+                overwrite: true
+              }
             );
+            ctx.cookies.set("jwt-auth-service-domain", config.domain, {
+              domain,
+              httpOnly: config.cookies.httpOnly,
+              maxAge: config.cookies.maxAge,
+              overwrite: true
+            });
             ctx.redirect(
               result.isValidUser ? successRedirectUrl : newuserRedirectUrl
             );
