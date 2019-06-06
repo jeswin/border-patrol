@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "transpile": "./build.sh",
-    "test": "./build.sh && mocha dist/test/test.js"
+    "test": "./build.sh && mocha --exit dist/test/test.js"
   },
   "bin": {
     "jwt-auth-service": "dist/index.js"
@@ -38,8 +38,10 @@
   "devDependencies": {
     "@types/mocha": "^5.2.5",
     "@types/should": "^13.0.0",
+    "@types/supertest": "^2.0.7",
     "mocha": "5.2.0",
-    "should": "13.2.3"
+    "should": "13.2.3",
+    "supertest": "^4.0.2"
   },
   "license": "MIT"
 }

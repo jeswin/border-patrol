@@ -4,8 +4,8 @@ import { verify } from "../utils/jwt";
 import * as configModule from "../config";
 import { setCookie } from "../utils/cookie";
 
-export async function getUsernameAvailability(ctx: IRouterContext) {
-  const result = await user.getUsernameAvailability(ctx.params.username);
+export async function getUserIdAvailability(ctx: IRouterContext) {
+  const result = await user.getUserIdAvailability(ctx.params.userId);
   ctx.body = {
     exists: result.exists
   };
@@ -35,8 +35,8 @@ export async function createUser(ctx: IRouterContext) {
                   ((ctx.status = 400), (ctx.body = "Invalid JWT token."))
                 : await (async () => {
                     const createUserResult = await user.createUser(
-                      ctx.request.body.username,
-                      result.value.providerUsername,
+                      ctx.request.body.userId,
+                      result.value.providerUserId,
                       result.value.provider
                     );
                     return createUserResult.created
@@ -49,8 +49,8 @@ export async function createUser(ctx: IRouterContext) {
                             );
                             setCookie(
                               ctx,
-                              "jwt-auth-service-username",
-                              createUserResult.tokens.username
+                              "jwt-auth-service-user-id",
+                              createUserResult.tokens.userId
                             );
                             setCookie(
                               ctx,
@@ -61,8 +61,8 @@ export async function createUser(ctx: IRouterContext) {
                           if (jwtInHeader) {
                             ctx.body = {
                               "jwt-auth-service-jwt": createUserResult.jwt,
-                              "jwt-auth-service-username":
-                                createUserResult.tokens.username,
+                              "jwt-auth-service-user-id":
+                                createUserResult.tokens.userId,
                               "jwt-auth-service-domain": config.domain
                             };
                           }

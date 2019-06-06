@@ -1,7 +1,7 @@
 module.exports = {
   "defaults": {
     "protocol": "http",
-    "host": "auth.example.com",
+    "host": "test.example.com",
     "transport": "session",
     "state": true
   },

@@ -32,14 +32,14 @@ export function getTokens(provider: string) {
           const tokenGrant = ctx.session.grant;
           const result =
             provider === "github"
-              ? await github.getTokensWithAccessToken(
+              ? await github.getTokensByAccessToken(
                   tokenGrant.response.access_token
                 )
               : error("Invalid oauth service selected.");
 
           if (result.oauthSuccess) {
             setCookie(ctx, "jwt-auth-service-jwt", result.jwt);
-            setCookie(ctx, "jwt-auth-service-username", result.tokens.username);
+            setCookie(ctx, "jwt-auth-service-user-id", result.tokens.userId);
             setCookie(ctx, "jwt-auth-service-domain", config.domain);
             ctx.redirect(
               result.isValidUser ? successRedirectUrl : newuserRedirectUrl

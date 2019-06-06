@@ -1,9 +1,9 @@
-const JWT_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+const publicKey = `-----BEGIN PUBLIC KEY-----
 MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAI9Jm7T8/yzNyyq2Tl1VwAehKiWcMeOJ
 cvOMkcnWQSyYic4X5e3MU7B5nHMrdFO+L35dlHc0CgqyF72H/tMs4D0CAwEAAQ==
 -----END PUBLIC KEY-----`;
 
-const JWT_PRIVATE_KEY = `-----BEGIN RSA PRIVATE KEY-----
+const privateKey = `-----BEGIN RSA PRIVATE KEY-----
 MIIBOQIBAAJBAI9Jm7T8/yzNyyq2Tl1VwAehKiWcMeOJcvOMkcnWQSyYic4X5e3M
 U7B5nHMrdFO+L35dlHc0CgqyF72H/tMs4D0CAwEAAQJATkoJqXoScoh+2XeCmbyg
 j4qfXK1bFNek1y2W+pD2S0a7uEwsOade2b5FK2ohtgGwlkaqyrKhBqzODvMrnxX0
@@ -27,7 +27,7 @@ const signOptions = {
 };
 
 module.exports = {
-  JWT_PUBLIC_KEY,
-  JWT_PRIVATE_KEY,
+  publicKey,
+  privateKey,
   signOptions
 };

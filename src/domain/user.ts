@@ -2,42 +2,42 @@ import { sign } from "../utils/jwt";
 import * as pg from "psychopiggy";
 import { getPool, withTransaction } from "../db";
 
-export async function getUsernameAvailability(
-  username: string
+export async function getUserIdAvailability(
+  userId: string
 ): Promise<{ exists: boolean }> {
   const pool = getPool();
 
-  const params = new pg.Params({ username });
+  const params = new pg.Params({ id: userId });
 
   const { rows } = await pool.query(
-    `SELECT username FROM "user" WHERE username=${params.id("username")}`,
+    `SELECT id FROM "user" WHERE id=${params.id("id")}`,
     params.values()
   );
 
   return { exists: rows.length !== 0 };
 }
 
-export type GetUsernameResult =
+export type GetUserIdResult =
   | {
       isValidUser: true;
-      username: string;
+      userId: string;
     }
   | { isValidUser: false };
 
-export async function getUsername(
-  providerUsername: string,
+export async function getUserId(
+  providerUserId: string,
   provider: string
-): Promise<GetUsernameResult> {
+): Promise<GetUserIdResult> {
   const pool = getPool();
 
   const params = new pg.Params({
-    providerUsername,
+    providerUserId,
     provider
   });
 
   const { rows } = await pool.query(
-    `SELECT username FROM "provider_user" WHERE provider_username=${params.id(
-      "providerUsername"
+    `SELECT user_id FROM "provider_user" WHERE provider_user_id=${params.id(
+      "providerUserId"
     )} AND provider=${params.id("provider")}`,
     params.values()
   );
@@ -45,49 +45,49 @@ export async function getUsername(
   return rows.length
     ? {
         isValidUser: true,
-        username: rows[0].username
+        userId: rows[0].user_id
       }
     : {
         isValidUser: false
       };
 }
 
-export async function getRoles(username: string): Promise<string[]> {
+export async function getRoles(userId: string): Promise<string[]> {
   const pool = getPool();
 
   const params = new pg.Params({
-    username
+    user_id: userId
   });
 
   const { rows } = await pool.query(
-    `SELECT role FROM "user_role" WHERE username=${params.id("username")}`,
+    `SELECT role_name FROM "user_role" WHERE user_id=${params.id("user_id")}`,
     params.values()
   );
 
-  return rows.map(x => x.role);
+  return rows.map(x => x.role_name);
 }
 
 export type getTokensForUserResult = { [key: string]: string };
 
 export async function getTokensForUser(
-  username: string,
-  providerUsername: string,
+  userId: string,
+  providerUserId: string,
   provider: string
 ): Promise<getTokensForUserResult> {
   const pool = getPool();
 
   const userTokenParams = new pg.Params({
-    username
+    user_id: userId
   });
 
   const { rows: userTokenRows } = await pool.query(
-    `SELECT token, value FROM user_token WHERE username=${userTokenParams.id(
-      "username"
+    `SELECT name, value FROM user_token WHERE user_id=${userTokenParams.id(
+      "user_id"
     )}`,
     userTokenParams.values()
   );
 
-  const roles = await getRoles(username);
+  const roles = await getRoles(userId);
 
   const roleTokenRows = roles.length
     ? await (async () => {
@@ -96,23 +96,23 @@ export async function getTokensForUser(
         });
 
         const { rows: roleTokenRows } = await pool.query(
-          `SELECT token, value 
+          `SELECT name, value 
             FROM role_token 
-            WHERE role IN (${roleTokenParams.ids()})`,
+            WHERE role_name IN (${roleTokenParams.ids()})`,
           roleTokenParams.values()
         );
 
         return roleTokenRows;
-      })
+      })()
     : [];
 
   const tokens: { [key: string]: string } = userTokenRows
     .concat(roleTokenRows)
-    .reduce((acc, i) => ((acc[i.token] = i.value), acc), {});
+    .reduce((acc, i) => ((acc[i.name] = i.value), acc), {});
 
   return {
-    username,
-    providerUsername,
+    userId,
+    providerUserId,
     provider,
     roles: roles.join(","),
     ...tokens
@@ -125,18 +125,18 @@ export interface IGetTokensResult {
   tokens: { [key: string]: string };
 }
 
-export async function getTokens(
-  providerUsername: string,
+export async function getTokensByProviderCredentials(
+  providerUserId: string,
   provider: string
 ): Promise<IGetTokensResult> {
-  const getUsernameResult = await getUsername(providerUsername, provider);
+  const getUserIdResult = await getUserId(providerUserId, provider);
 
-  return getUsernameResult.isValidUser
+  return getUserIdResult.isValidUser
     ? await (async () => {
-        const username = getUsernameResult.username;
+        const userId = getUserIdResult.userId;
         const tokensForUser = await getTokensForUser(
-          username,
-          providerUsername,
+          userId,
+          providerUserId,
           provider
         );
         return {
@@ -147,8 +147,8 @@ export async function getTokens(
       })()
     : {
         isValidUser: false,
-        jwt: sign({ providerUsername, provider }),
-        tokens: { providerUsername, provider }
+        jwt: sign({ providerUserId, provider }),
+        tokens: { providerUserId, provider }
       };
 }
 
@@ -164,17 +164,17 @@ export type CreateUserResult =
     };
 
 export async function createUser(
-  username: string,
-  providerUsername: string,
+  userId: string,
+  providerUserId: string,
   provider: string
 ): Promise<CreateUserResult> {
-  const getUsernameResult = await getUsername(providerUsername, provider);
-  return getUsernameResult.isValidUser
+  const getUserIdResult = await getUserId(providerUserId, provider);
+  return getUserIdResult.isValidUser
     ? { created: false as false, reason: "User already exists." }
     : await (async () => {
         const committed = await withTransaction(async client => {
           const insertUserParams = new pg.Params({
-            username,
+            id: userId,
             first_name: "NA",
             last_name: "NA",
             created_at: Date.now(),
@@ -187,8 +187,8 @@ export async function createUser(
           );
 
           const insertProviderUserParams = new pg.Params({
-            username,
-            provider_username: providerUsername,
+            user_id: userId,
+            provider_user_id: providerUserId,
             provider,
             created_at: Date.now(),
             updated_at: Date.now()
@@ -205,8 +205,8 @@ export async function createUser(
         return committed
           ? {
               created: true as true,
-              jwt: sign({ username, providerUsername, provider, roles: "" }),
-              tokens: { username, providerUsername, provider, roles: "" }
+              jwt: sign({ userId, providerUserId, provider, roles: "" }),
+              tokens: { userId, providerUserId, provider, roles: "" }
             }
           : {
               created: false as false,

@@ -1,7 +1,7 @@
 module.exports = {
-  database: "oauthdb",
-  host: "db.example.com",
+  database: "jwtauthservicedb",
+  host: "test.example.com",
   password: "secret",
   port: 5432,
-  user: "oauthjwtdbuser"
+  user: "jwtauthserviceuser"
 };

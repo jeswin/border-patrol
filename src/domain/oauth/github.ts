@@ -17,7 +17,7 @@ export interface IGetTokensResult {
 
 export type GetTokensResult = IGetJWTResultGitHubError | IGetTokensResult;
 
-export async function getTokensWithAccessToken(
+export async function getTokensByAccessToken(
   accessToken: string
 ): Promise<GetTokensResult> {
   const response = (await httpGet(
@@ -32,7 +32,10 @@ export async function getTokensWithAccessToken(
 
   return data.login
     ? await (async () => {
-        const tokensResult = await user.getTokens(data.login, "github");
+        const tokensResult = await user.getTokensByProviderCredentials(
+          data.login,
+          "github"
+        );
         const result: IGetTokensResult = {
           oauthSuccess: true,
           ...tokensResult

@@ -1,18 +1,9 @@
 import * as pg from "pg";
 import * as psychopiggy from "psychopiggy";
 
-export interface IPGConfig {
-  database: string;
-  host: string;
-  password: string;
-  port: number;
-  user: string;
-  ssl?: boolean;
-}
+let config: psychopiggy.IDbConfig;
 
-let config: IPGConfig;
-
-export async function init(c: IPGConfig) {
+export async function init(c: psychopiggy.IDbConfig) {
   if (!config) {
     psychopiggy.createPool(c);
     config = c;

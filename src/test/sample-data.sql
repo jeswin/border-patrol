@@ -1,5 +1,5 @@
 INSERT INTO "user"(
-	"username",
+	"id",
 	"first_name",
 	"last_name",
 	"created_at",
@@ -14,7 +14,7 @@ INSERT INTO "user"(
 	);
 
 INSERT INTO "user"(
-	"username",
+	"id",
 	"first_name",
 	"last_name",
 	"created_at",
@@ -29,8 +29,8 @@ INSERT INTO "user"(
 	);
 
 INSERT INTO "provider_user"(
-	"username",
-	"provider_username",
+	"user_id",
+	"provider_user_id",
 	"provider",
 	"created_at",
 	"updated_at"
@@ -44,8 +44,8 @@ INSERT INTO "provider_user"(
 	);
 
 INSERT INTO "provider_user"(
-	"username",
-	"provider_username",
+	"user_id",
+	"provider_user_id",
 	"provider",
 	"created_at",
 	"updated_at"
@@ -81,8 +81,8 @@ INSERT INTO "role"(
 	);
 	
 INSERT INTO "user_role"(
-	"role",
-	"username",
+	"role_name",
+	"user_id",
 	"created_at",
 	"updated_at"
 )
@@ -94,8 +94,8 @@ INSERT INTO "user_role"(
 	);
 
 INSERT INTO "user_role"(
-	"role",
-	"username",
+	"role_name",
+	"user_id",
 	"created_at",
 	"updated_at"
 	)
@@ -107,8 +107,8 @@ INSERT INTO "user_role"(
 	);
 
 INSERT INTO "user_role"(
-	"role",
-	"username",
+	"role_name",
+	"user_id",
 	"created_at",
 	"updated_at"
 )
@@ -120,8 +120,8 @@ INSERT INTO "user_role"(
 	);
 
 INSERT INTO "user_token"(
-	"token",
-	"username",
+	"name",
+	"user_id",
 	"value",
 	"created_at",
 	"updated_at"
@@ -135,8 +135,8 @@ INSERT INTO "user_token"(
 	);
 	
 INSERT INTO "role_token"(
-	"token",
-	"role",
+	"name",
+	"role_name",
 	"value",
 	"created_at",
 	"updated_at"

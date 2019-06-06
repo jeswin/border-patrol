@@ -1,17 +1,11 @@
-export interface IConfig {
-  domain: string;
-  cookies: {
-    httpOnly: boolean;
-    maxAge: number;
-  }
-}
+import { IAppConfig } from "../types";
 
-let config: IConfig;
+let config: IAppConfig;
 
-export function init(c: IConfig) {
+export function init(c: IAppConfig) {
   config = c;
 }
 
-export function get(): IConfig {
+export function get(): IAppConfig {
   return config;
 }

@@ -1,10 +1,5 @@
 import jwt = require("jsonwebtoken");
-
-export interface IJWTConfig {
-  JWT_PUBLIC_KEY: string;
-  JWT_PRIVATE_KEY: string;
-  signOptions: object;
-}
+import { IJWTConfig } from "../types";
 
 let config: IJWTConfig;
 
@@ -12,12 +7,12 @@ export function init(c: IJWTConfig) {
   if (!config) {
     config = c;
   } else {
-    throw("JWT config has already been initialized.");
+    throw "JWT config has already been initialized.";
   }
 }
 
 export function sign(payload: any) {
-  return jwt.sign(payload, config.JWT_PRIVATE_KEY, config.signOptions);
+  return jwt.sign(payload, config.privateKey, config.signOptions);
 }
 
 export type IJWT = {
@@ -37,7 +32,7 @@ export function verify(token: string): IVerifyResult {
   try {
     return {
       valid: true,
-      value: jwt.verify(token, config.JWT_PUBLIC_KEY) as any
+      value: jwt.verify(token, config.publicKey) as any
     };
   } catch {
     return { valid: false };
