@@ -70,9 +70,7 @@ export async function getRoles(userId: string): Promise<string[]> {
 export type getTokensForUserResult = { [key: string]: string };
 
 export async function getTokensForUser(
-  userId: string,
-  providerUserId: string,
-  provider: string
+  userId: string
 ): Promise<getTokensForUserResult> {
   const pool = getPool();
 
@@ -110,13 +108,18 @@ export async function getTokensForUser(
     .concat(roleTokenRows)
     .reduce((acc, i) => ((acc[i.name] = i.value), acc), {});
 
-  return {
-    userId,
-    providerUserId,
-    provider,
-    roles: roles.join(","),
-    ...tokens
-  };
+  const result = roles.length
+    ? {
+        userId,
+        roles: roles.join(","),
+        ...tokens
+      }
+    : {
+        userId,
+        ...tokens
+      };
+
+  return result;
 }
 
 export interface IGetTokensResult {
@@ -134,15 +137,11 @@ export async function getTokensByProviderCredentials(
   return getUserIdResult.isValidUser
     ? await (async () => {
         const userId = getUserIdResult.userId;
-        const tokensForUser = await getTokensForUser(
-          userId,
-          providerUserId,
-          provider
-        );
+        const tokensForUser = await getTokensForUser(userId);
         return {
           isValidUser: true,
           jwt: sign(tokensForUser),
-          tokens: tokensForUser
+          tokens: { ...tokensForUser, providerUserId, provider }
         };
       })()
     : {
@@ -205,8 +204,8 @@ export async function createUser(
         return committed
           ? {
               created: true as true,
-              jwt: sign({ userId, providerUserId, provider, roles: "" }),
-              tokens: { userId, providerUserId, provider, roles: "" }
+              jwt: sign({ userId, providerUserId, provider }),
+              tokens: { userId, providerUserId, provider }
             }
           : {
               created: false as false,

@@ -1,3 +1,5 @@
+import "mocha";
+import "should";
 import serviceTest from "./service-test";
 import domainTest from "./domain-test";
 import { join } from "path";
@@ -32,23 +34,20 @@ function run() {
 
   const port = parseInt(process.env.PORT);
 
-  describe("jwt-auth-service", async () => {
-    /* Recreate the database. */
-    let app: any;
-
+  describe("jwt-auth-service", () => {
     before(async function resetDb() {
       const pool = new Pool({ ...dbConfig, database: "template1" });
-
+      
       const { rows: existingDbRows } = await pool.query(
         `SELECT 1 AS result FROM pg_database WHERE datname='${
           dbConfig.database
         }'`
-      );
-
+        );
+        
       if (existingDbRows.length) {
         await pool.query(`DROP DATABASE ${dbConfig.database}`);
       }
-
+      
       await pool.query(`CREATE DATABASE ${dbConfig.database}`);
     });
 

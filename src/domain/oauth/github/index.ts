@@ -1,8 +1,5 @@
-import request = require("request");
-import { promisify } from "util";
-import * as user from "../user";
-
-const httpGet = promisify(request.get);
+import * as user from "../../user";
+import { getUser } from "./api";
 
 export interface IGetJWTResultGitHubError {
   oauthSuccess: false;
@@ -20,15 +17,7 @@ export type GetTokensResult = IGetJWTResultGitHubError | IGetTokensResult;
 export async function getTokensByAccessToken(
   accessToken: string
 ): Promise<GetTokensResult> {
-  const response = (await httpGet(
-    {
-      url: `https://api.github.com/user?access_token=${accessToken}`,
-      headers: { "user-agent": "node.js" }
-    },
-    undefined
-  )) as { body: string };
-
-  const data = JSON.parse(response.body);
+  const data = await getUser(accessToken);
 
   return data.login
     ? await (async () => {
