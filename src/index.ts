@@ -40,9 +40,12 @@ export async function init(configDir: string) {
   });
 
   /* OAuth services need a callback */
-  appConfig.enabledOAuthServices.forEach(oauthService => {
-    router.get(`/oauth/token/${oauthService}`, getTokens(oauthService));
-  });
+  appConfig.enabledOAuthServices.forEach(oauthService =>
+    router.get(
+      `/oauth/token/${oauthService}`,
+      async (ctx: Router.RouterContext) => await getTokens(ctx, oauthService)
+    )
+  );
 
   /* Check if a user-id is available */
   router.get(`/user-ids/:userId`, getUserIdAvailability);

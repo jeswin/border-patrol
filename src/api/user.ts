@@ -58,14 +58,12 @@ export async function createUser(ctx: IRouterContext) {
                               config.domain
                             );
                           }
-                          if (jwtInHeader) {
-                            ctx.body = {
-                              "jwt-auth-service-jwt": createUserResult.jwt,
-                              "jwt-auth-service-user-id":
-                                createUserResult.tokens.userId,
-                              "jwt-auth-service-domain": config.domain
-                            };
-                          }
+                          ctx.body = {
+                            "jwt-auth-service-jwt": createUserResult.jwt,
+                            "jwt-auth-service-user-id":
+                              createUserResult.tokens.userId,
+                            "jwt-auth-service-domain": config.domain
+                          };
                         })()
                       : ((ctx.status = 400),
                         (ctx.body = createUserResult.reason));
