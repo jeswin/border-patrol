@@ -13,8 +13,8 @@ export async function getUserIdAvailability(ctx: IRouterContext) {
 
 export async function createUser(ctx: IRouterContext) {
   const config = configModule.get();
-  const jwtInCookie = ctx.cookies.get("jwt-auth-service-jwt");
-  const jwtInHeader = ctx.headers["jwt-auth-service-jwt"];
+  const jwtInCookie = ctx.cookies.get("border-patrol-jwt");
+  const jwtInHeader = ctx.headers["border-patrol-jwt"];
 
   return jwtInCookie && jwtInHeader && jwtInCookie !== jwtInHeader
     ? /* JWT values in the cookie and the header are mismatched */
@@ -44,25 +44,25 @@ export async function createUser(ctx: IRouterContext) {
                           if (jwtInCookie) {
                             setCookie(
                               ctx,
-                              "jwt-auth-service-jwt",
+                              "border-patrol-jwt",
                               createUserResult.jwt
                             );
                             setCookie(
                               ctx,
-                              "jwt-auth-service-user-id",
+                              "border-patrol-user-id",
                               createUserResult.tokens.userId
                             );
                             setCookie(
                               ctx,
-                              "jwt-auth-service-domain",
+                              "border-patrol-domain",
                               config.domain
                             );
                           }
                           ctx.body = {
-                            "jwt-auth-service-jwt": createUserResult.jwt,
-                            "jwt-auth-service-user-id":
+                            "border-patrol-jwt": createUserResult.jwt,
+                            "border-patrol-user-id":
                               createUserResult.tokens.userId,
-                            "jwt-auth-service-domain": config.domain
+                            "border-patrol-domain": config.domain
                           };
                         })()
                       : ((ctx.status = 400),

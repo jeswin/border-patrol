@@ -1,4 +1,4 @@
-# jwt-auth-service
+# border-patrol
 
 A service which does oauth authentication and issues a JWT token.
 
@@ -7,7 +7,7 @@ A service which does oauth authentication and issues a JWT token.
 1. Install via npm.
 
 ```sh
-npm i -g jwt-auth-service
+npm i -g border-patrol
 ```
 
 2. Create a postgres database and create the tables with scripts found under the 'db' directory.
@@ -17,7 +17,7 @@ npm i -g jwt-auth-service
 You'd use something like this.
 
 ```sh
-(export PORT=5999 CONFIG_DIR=/some/path/to/config; jwt-auth-service)
+(export PORT=5999 CONFIG_DIR=/some/path/to/config; border-patrol)
 ```
 
 Where:

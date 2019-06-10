@@ -46,10 +46,10 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
         "/authenticate/github?success=http://test.example.com/success&newuser=http://test.example.com/newuser"
       );
       response.header["set-cookie"].should.containEql(
-        "jwt-auth-service-success-redirect=http://test.example.com/success; path=/; domain=test.example.com"
+        "border-patrol-success-redirect=http://test.example.com/success; path=/; domain=test.example.com"
       );
       response.header["set-cookie"].should.containEql(
-        "jwt-auth-service-newuser-redirect=http://test.example.com/newuser; path=/; domain=test.example.com"
+        "border-patrol-newuser-redirect=http://test.example.com/newuser; path=/; domain=test.example.com"
       );
       response.text.should.equal(
         `Redirecting to <a href="/connect/github">/connect/github</a>.`
@@ -76,8 +76,8 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       const response = await request(app)
         .get("/oauth/token/github")
         .set("Cookie", [
-          "jwt-auth-service-success-redirect=http://test.example.com/success",
-          "jwt-auth-service-newuser-redirect=http://test.example.com/newuser"
+          "border-patrol-success-redirect=http://test.example.com/success",
+          "border-patrol-newuser-redirect=http://test.example.com/newuser"
         ]);
 
       (oauthAPIModule as any).getTokens = realGetTokens;
@@ -86,8 +86,8 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       const cookies = (response.header["set-cookie"] as Array<string>).flatMap(
         x => x.split(";")
       );
-      cookies.should.containEql("jwt-auth-service-user-id=some_userid");
-      cookies.should.containEql("jwt-auth-service-domain=test.example.com");
+      cookies.should.containEql("border-patrol-user-id=some_userid");
+      cookies.should.containEql("border-patrol-domain=test.example.com");
       response.text.should.equal(
         `Redirecting to <a href="http://test.example.com/newuser">http://test.example.com/newuser</a>.`
       );
@@ -114,7 +114,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       const response = await request(app)
         .post("/users")
         .send({ username: "jeswin" })
-        .set("Cookie", ["jwt-auth-service-jwt=some_jwt"]);
+        .set("Cookie", ["border-patrol-jwt=some_jwt"]);
 
       (jwtModule as any).verify = realVerify;
       (userModule as any).createUser = realCreateUser;
@@ -122,10 +122,10 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       const cookies = (response.header["set-cookie"] as Array<string>).flatMap(
         x => x.split(";")
       );
-      cookies.should.containEql("jwt-auth-service-jwt=some_other_jwt");
-      cookies.should.containEql("jwt-auth-service-domain=test.example.com");
+      cookies.should.containEql("border-patrol-jwt=some_other_jwt");
+      cookies.should.containEql("border-patrol-domain=test.example.com");
       response.text.should.equal(
-        `{"jwt-auth-service-jwt":"some_other_jwt","jwt-auth-service-user-id":"jeswin","jwt-auth-service-domain":"test.example.com"}`
+        `{"border-patrol-jwt":"some_other_jwt","border-patrol-user-id":"jeswin","border-patrol-domain":"test.example.com"}`
       );
     });
   });

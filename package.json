@@ -1,5 +1,5 @@
 {
-  "name": "jwt-auth-service",
+  "name": "border-patrol",
   "version": "1.0.0",
   "author": "Jeswin Kumar<jeswinpk@agilehead.com>",
   "contributors": [
@@ -10,7 +10,7 @@
     "test": "./build.sh && mocha --exit dist/test/test.js"
   },
   "bin": {
-    "jwt-auth-service": "dist/index.js"
+    "border-patrol": "dist/index.js"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -38,12 +38,12 @@ export function authenticate(service: string) {
           "New user redirect must be a url within the application's domain."))
       : (setTempCookie(
           ctx,
-          "jwt-auth-service-success-redirect",
+          "border-patrol-success-redirect",
           successRedirect
         ),
         setTempCookie(
           ctx,
-          "jwt-auth-service-newuser-redirect",
+          "border-patrol-newuser-redirect",
           newuserRedirect
         ),
         ctx.redirect(`/connect/${service}`));

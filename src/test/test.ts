@@ -34,7 +34,7 @@ function run() {
 
   const port = parseInt(process.env.PORT);
 
-  describe("jwt-auth-service", () => {
+  describe("border-patrol", () => {
     before(async function resetDb() {
       const pool = new Pool({ ...dbConfig, database: "template1" });
       
