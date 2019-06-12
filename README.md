@@ -26,7 +26,7 @@ Where:
 - CONFIG_DIR is the directory in which config files are placed.
 
 An example directory containing config files (which are JS files) can be found under the 'example-config' directory.
-This is where you specify database connection strings, jwt signing keys etc.
+This is where you specify database connection strings, jwt and oauth keys etc.
 
 ## Authenticating
 
