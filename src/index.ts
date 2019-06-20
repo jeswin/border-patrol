@@ -11,7 +11,11 @@ import * as db from "./db";
 import * as jwt from "./utils/jwt";
 import * as config from "./config";
 import { authenticate } from "./api/authentication";
-import { getUserIdAvailability, createUser } from "./api/users";
+import {
+  getUserIdAvailability,
+  createUser,
+  createKeyValuePair
+} from "./api/users";
 import { IAppConfig, IJWTConfig } from "./types";
 
 const grant = require("grant-koa");
@@ -54,7 +58,7 @@ export async function init(configDir: string) {
   router.post(`/users`, createUser);
 
   /* Add a token for a user */
-  router.post(`/users/:userId/`)
+  router.post(`/store`, createKeyValuePair);
 
   // Start app
   var app = new Koa();

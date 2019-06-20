@@ -166,24 +166,24 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
 
     it("user.addKeyValuePair writes data", async () => {
       await writeSampleData();
-      const result = await userModule.addKeyValuePair(
+      const result = await userModule.createKeyValuePair(
         "jeswin",
         "publickey_1",
         "abcd",
         "pubkey"
       );
-      result.should.deepEqual({ saved: true });
+      result.should.deepEqual({ created: true });
     });
 
     it("user.addKeyValuePair skips when user is missing", async () => {
       await writeSampleData();
-      const result = await userModule.addKeyValuePair(
+      const result = await userModule.createKeyValuePair(
         "alicecooper",
         "publickey_1",
         "abcd",
         "pubkey"
       );
-      result.should.deepEqual({ saved: false, reason: "User does not exist." });
+      result.should.deepEqual({ created: false, reason: "User does not exist." });
     });
   });
 }

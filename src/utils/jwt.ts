@@ -19,16 +19,18 @@ export type IJWT = {
   [key: string]: string;
 };
 
-export type IVerifyResult =
-  | {
-      valid: false;
-    }
-  | {
-      valid: true;
-      value: IJWT;
-    };
+export type IVerifiedInvalidJWT = {
+  valid: false;
+};
 
-export function verify(token: string): IVerifyResult {
+export type IVerifiedValidJWT = {
+  valid: true;
+  value: IJWT;
+};
+
+export type IVerifiedJWT = IVerifiedInvalidJWT | IVerifiedValidJWT;
+
+export function verify(token: string): IVerifiedJWT {
   try {
     return {
       valid: true,

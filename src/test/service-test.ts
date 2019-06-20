@@ -128,5 +128,29 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
         `{"border-patrol-jwt":"some_other_jwt","border-patrol-user-id":"jeswin","border-patrol-domain":"test.example.com"}`
       );
     });
+
+    it("adds a key value pair", async () => {
+      // Mock a few things.
+      const realVerify = jwtModule.verify;
+      (jwtModule as any).verify = () => ({
+        valid: true,
+        value: { userId: "jeswin" }
+      });
+
+      const realCreateUser = userModule.createUser;
+      (userModule as any).addKeyValuePair = async () => ({
+        created: true
+      });
+
+      const response = await request(app)
+        .post("/store")
+        .send({ username: "jeswin" })
+        .set("Cookie", ["border-patrol-jwt=some_jwt"]);
+
+      (jwtModule as any).verify = realVerify;
+      (userModule as any).createUser = realCreateUser;
+
+      JSON.parse(response.text).should.deepEqual({ success: true });
+    });
   });
 }

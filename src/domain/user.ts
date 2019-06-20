@@ -214,22 +214,22 @@ export async function createUser(
 
 export type AddKeyValuePairResult =
   | {
-      saved: false;
+      created: false;
       reason: string;
     }
   | {
-      saved: true;
+      created: true;
     };
 
-export async function addKeyValuePair(
+export async function createKeyValuePair(
   userId: string,
   key: string,
   value: string,
   tag: string
-) {
+): Promise<AddKeyValuePairResult> {
   const getUserIdResult = await getUserIdAvailability(userId);
   return !getUserIdResult.exists
-    ? { saved: false as false, reason: "User does not exist." }
+    ? { created: false as false, reason: "User does not exist." }
     : await (async () => {
         const pool = getPool();
 
@@ -246,6 +246,6 @@ export async function addKeyValuePair(
           params.values()
         );
 
-        return { saved: true };
+        return { created: true as true };
       })();
 }
