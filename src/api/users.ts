@@ -12,6 +12,19 @@ export async function getUserIdAvailability(ctx: IRouterContext) {
 }
 
 export async function createUser(ctx: IRouterContext) {
+  function onSuccess(jwt: string, userId: string, useCookie: boolean) {
+    if (useCookie) {
+      setCookie(ctx, "border-patrol-jwt", jwt);
+      setCookie(ctx, "border-patrol-user-id", userId);
+      setCookie(ctx, "border-patrol-domain", config.domain);
+    }
+    ctx.body = {
+      "border-patrol-jwt": jwt,
+      "border-patrol-user-id": userId,
+      "border-patrol-domain": config.domain
+    };
+  }
+
   const config = configModule.get();
   const jwtInCookie = ctx.cookies.get("border-patrol-jwt");
   const jwtInHeader = ctx.headers["border-patrol-jwt"];
@@ -40,31 +53,11 @@ export async function createUser(ctx: IRouterContext) {
                       result.value.provider
                     );
                     return createUserResult.created
-                      ? (() => {
-                          if (jwtInCookie) {
-                            setCookie(
-                              ctx,
-                              "border-patrol-jwt",
-                              createUserResult.jwt
-                            );
-                            setCookie(
-                              ctx,
-                              "border-patrol-user-id",
-                              createUserResult.tokens.userId
-                            );
-                            setCookie(
-                              ctx,
-                              "border-patrol-domain",
-                              config.domain
-                            );
-                          }
-                          ctx.body = {
-                            "border-patrol-jwt": createUserResult.jwt,
-                            "border-patrol-user-id":
-                              createUserResult.tokens.userId,
-                            "border-patrol-domain": config.domain
-                          };
-                        })()
+                      ? onSuccess(
+                          createUserResult.jwt,
+                          createUserResult.tokens.userId,
+                          typeof jwtInCookie !== "undefined"
+                        )
                       : ((ctx.status = 400),
                         (ctx.body = createUserResult.reason));
                   })();
