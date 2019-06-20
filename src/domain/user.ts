@@ -212,6 +212,40 @@ export async function createUser(
       })();
 }
 
-export async function addKeyValuePair() {
+export type AddKeyValuePairResult =
+  | {
+      saved: false;
+      reason: string;
+    }
+  | {
+      saved: true;
+    };
 
+export async function addKeyValuePair(
+  userId: string,
+  key: string,
+  value: string,
+  tag: string
+) {
+  const getUserIdResult = await getUserIdAvailability(userId);
+  return !getUserIdResult.exists
+    ? { saved: false as false, reason: "User does not exist." }
+    : await (async () => {
+        const pool = getPool();
+
+        const params = new pg.Params({
+          user_id: userId,
+          key,
+          value,
+          tag,
+          timestamp: Date.now()
+        });
+
+        const { rows } = await pool.query(
+          `INSERT INTO "user_store" (${params.columns()}) VALUES (${params.ids()})`,
+          params.values()
+        );
+
+        return { saved: true };
+      })();
 }

@@ -70,3 +70,6 @@ CREATE TABLE "user_store" (
     CONSTRAINT "user_store_user_fkey" 
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
+
+CREATE INDEX "idx_user_store_user_id_tag" 
+    ON user_store("user_id", "tag");

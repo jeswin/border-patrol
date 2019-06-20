@@ -157,11 +157,33 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       result.should.deepEqual({
         oauthSuccess: true,
         isValidUser: false,
-        jwt: 'something',
-        tokens: { providerUserId: 'alice', provider: 'github' }
+        jwt: "something",
+        tokens: { providerUserId: "alice", provider: "github" }
       });
 
       (githubAPI as any).getUser = originalGetUser;
+    });
+
+    it("user.addKeyValuePair writes data", async () => {
+      await writeSampleData();
+      const result = await userModule.addKeyValuePair(
+        "jeswin",
+        "publickey_1",
+        "abcd",
+        "pubkey"
+      );
+      result.should.deepEqual({ saved: true });
+    });
+
+    it("user.addKeyValuePair skips when user is missing", async () => {
+      await writeSampleData();
+      const result = await userModule.addKeyValuePair(
+        "alicecooper",
+        "publickey_1",
+        "abcd",
+        "pubkey"
+      );
+      result.should.deepEqual({ saved: false, reason: "User does not exist." });
     });
   });
 }
