@@ -23,8 +23,8 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       const pool = new pg.Pool(dbConfig);
       await pool.query(`
         INSERT INTO "user"
-          (id, first_name, last_name, created_at, updated_at)
-          VALUES('jeswin', 'Jeswin', 'Kumar', ${Date.now()}, ${Date.now()});
+          (id, first_name, last_name, timestamp)
+          VALUES('jeswin', 'Jeswin', 'Kumar', ${Date.now()});
       `);
       const response = await request(app).get("/user-ids/jeswin");
       response.status.should.equal(200);

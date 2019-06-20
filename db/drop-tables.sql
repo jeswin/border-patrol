@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS "user_store";
+
 DROP TABLE IF EXISTS "provider_user";
 
 DROP TABLE IF EXISTS "user_token";

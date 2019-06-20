@@ -176,8 +176,7 @@ export async function createUser(
             id: userId,
             first_name: "NA",
             last_name: "NA",
-            created_at: Date.now(),
-            updated_at: Date.now()
+            timestamp: Date.now()
           });
 
           await client.query(
@@ -189,8 +188,7 @@ export async function createUser(
             user_id: userId,
             provider_user_id: providerUserId,
             provider,
-            created_at: Date.now(),
-            updated_at: Date.now()
+            timestamp: Date.now()
           });
 
           await client.query(
@@ -212,4 +210,8 @@ export async function createUser(
               reason: "Could not create the new user."
             };
       })();
+}
+
+export async function addKeyValuePair() {
+
 }

@@ -53,6 +53,9 @@ export async function init(configDir: string) {
   /* Create a new user */
   router.post(`/users`, createUser);
 
+  /* Add a token for a user */
+  router.post(`/users/:userId/`)
+
   // Start app
   var app = new Koa();
   app.use(bodyParser());
