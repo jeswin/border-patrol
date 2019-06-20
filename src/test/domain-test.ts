@@ -30,31 +30,31 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       result.should.deepEqual({ exists: false });
     });
 
-    it("user.getUserId returns userid with provider credentials", async () => {
+    it("user.getUserId() returns userid with provider credentials", async () => {
       await writeSampleData();
       const result = await userModule.getUserId("jeswin", "github");
       result.should.deepEqual({ isValidUser: true, userId: "jeswin" });
     });
 
-    it("user.getUserId returns false with invalid provider credentials", async () => {
+    it("user.getUserId() returns false with invalid provider credentials", async () => {
       await writeSampleData();
       const result = await userModule.getUserId("alice", "github");
       result.should.deepEqual({ isValidUser: false });
     });
 
-    it("user.getRoles returns roles", async () => {
+    it("user.getRoles() returns roles", async () => {
       await writeSampleData();
       const result = await userModule.getRoles("jeswin");
       result.should.deepEqual(["coreteam", "admin"]);
     });
 
-    it("user.getRoles returns nothing for missing user", async () => {
+    it("user.getRoles() returns nothing for missing user", async () => {
       await writeSampleData();
       const result = await userModule.getRoles("alice");
       result.should.deepEqual([]);
     });
 
-    it("user.getTokensByProviderCredentials returns tokens", async () => {
+    it("user.getTokensByProviderCredentials() returns tokens", async () => {
       await writeSampleData();
       const result = await userModule.getTokensByProviderCredentials(
         "jeswin",
@@ -75,7 +75,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       });
     });
 
-    it("user.getTokensForUser returns tokens", async () => {
+    it("user.getTokensForUser() returns tokens", async () => {
       await writeSampleData();
       const result = await userModule.getTokensForUser("jeswin");
       result.should.deepEqual({
@@ -92,7 +92,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       result.should.deepEqual({ userId: "alice" });
     });
 
-    it("user.createUser creates a user", async () => {
+    it("user.createUser() creates a user", async () => {
       const result = await userModule.createUser("jeswin", "jeswin", "github");
       (result as any).jwt = "something";
       result.should.deepEqual({
@@ -106,7 +106,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       });
     });
 
-    it("user.createUser doesn't overwrite existing user", async () => {
+    it("user.createUser() doesn't overwrite existing user", async () => {
       await writeSampleData();
       const result = await userModule.createUser("jeswin", "jeswin", "github");
       result.should.deepEqual({
@@ -115,7 +115,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       });
     });
 
-    it("github.getTokensByAccessToken returns tokens", async () => {
+    it("github.getTokensByAccessToken() returns tokens", async () => {
       await writeSampleData();
       const originalGetUser: typeof githubAPI.getUser = githubAPI.getUser;
 
@@ -143,7 +143,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       (githubAPI as any).getUser = originalGetUser;
     });
 
-    it("github.getTokensByAccessToken returns tokens for missing user", async () => {
+    it("github.getTokensByAccessToken() returns tokens for missing user", async () => {
       await writeSampleData();
       const originalGetUser: typeof githubAPI.getUser = githubAPI.getUser;
 
@@ -164,7 +164,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       (githubAPI as any).getUser = originalGetUser;
     });
 
-    it("user.addKeyValuePair writes data", async () => {
+    it("user.addKeyValuePair() writes data", async () => {
       await writeSampleData();
       const result = await userModule.createKeyValuePair(
         "jeswin",
@@ -175,7 +175,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       result.should.deepEqual({ created: true });
     });
 
-    it("user.addKeyValuePair skips when user is missing", async () => {
+    it("user.addKeyValuePair() skips when user is missing", async () => {
       await writeSampleData();
       const result = await userModule.createKeyValuePair(
         "alicecooper",
@@ -183,7 +183,10 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
         "abcd",
         "pubkey"
       );
-      result.should.deepEqual({ created: false, reason: "User does not exist." });
+      result.should.deepEqual({
+        created: false,
+        reason: "User does not exist."
+      });
     });
   });
 }
