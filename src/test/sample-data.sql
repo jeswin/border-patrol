@@ -126,3 +126,33 @@ INSERT INTO "role_token"(
 		'yes',
 		1559302695646
 	);
+
+INSERT INTO "user_store_log"(
+	"user_id",
+	"key",
+	"value",
+	"tag",
+	"timestamp"
+)
+	VALUES (
+		'jeswin',
+		'group',
+		'admin',
+		'rights',
+		1559302695646
+	);
+
+INSERT INTO "user_store"(
+	"user_id",
+	"key",
+	"value",
+	"tag",
+	"timestamp"
+)
+	VALUES (
+		'jeswin',
+		'group',
+		'admin',
+		'rights',
+		1559302695646
+	);

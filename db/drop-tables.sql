@@ -1,3 +1,7 @@
+DROP TABLE IF EXISTS "user_resource";
+
+DROP TABLE IF EXISTS "user_store_log";
+
 DROP TABLE IF EXISTS "user_store";
 
 DROP TABLE IF EXISTS "provider_user";

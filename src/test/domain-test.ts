@@ -164,15 +164,26 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       (githubAPI as any).getUser = originalGetUser;
     });
 
-    it("user.addKeyValuePair() writes data", async () => {
+    it("user.addKeyValuePair() inserts data", async () => {
       await writeSampleData();
       const result = await userModule.createKeyValuePair(
         "jeswin",
-        "publickey_1",
-        "abcd",
-        "pubkey"
+        "region",
+        "india",
+        "locations"
       );
-      result.should.deepEqual({ created: true });
+      result.should.deepEqual({ created: true, edit: "insert" });
+    });
+
+    it("user.addKeyValuePair() updates data", async () => {
+      await writeSampleData();
+      const result = await userModule.createKeyValuePair(
+        "jeswin",
+        "group",
+        "india",
+        "access"
+      );
+      result.should.deepEqual({ created: true, edit: "update" });
     });
 
     it("user.addKeyValuePair() skips when user is missing", async () => {

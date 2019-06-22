@@ -171,7 +171,7 @@ export async function createUser(
   return getUserIdResult.isValidUser
     ? { created: false as false, reason: "User already exists." }
     : await (async () => {
-        const committed = await withTransaction(async client => {
+        const txResult = await withTransaction(async client => {
           const insertUserParams = new pg.Params({
             id: userId,
             first_name: "NA",
@@ -199,7 +199,7 @@ export async function createUser(
           return true;
         });
 
-        return committed
+        return txResult.success
           ? {
               created: true as true,
               jwt: sign({ userId, providerUserId, provider }),
@@ -212,13 +212,14 @@ export async function createUser(
       })();
 }
 
-export type AddKeyValuePairResult =
+export type CreateKeyValuePairResult =
   | {
       created: false;
       reason: string;
     }
   | {
       created: true;
+      edit: "update" | "insert";
     };
 
 export async function createKeyValuePair(
@@ -226,26 +227,72 @@ export async function createKeyValuePair(
   key: string,
   value: string,
   tag: string
-): Promise<AddKeyValuePairResult> {
+): Promise<CreateKeyValuePairResult> {
   const getUserIdResult = await getUserIdAvailability(userId);
   return !getUserIdResult.exists
     ? { created: false as false, reason: "User does not exist." }
     : await (async () => {
-        const pool = getPool();
+        const txResult = await withTransaction(async client => {
+          const params = new pg.Params({
+            user_id: userId,
+            key,
+            value,
+            tag,
+            timestamp: Date.now()
+          });
 
-        const params = new pg.Params({
-          user_id: userId,
-          key,
-          value,
-          tag,
-          timestamp: Date.now()
+          await client.query(
+            `INSERT INTO "user_store_log" (${params.columns()}) VALUES (${params.ids()})`,
+            params.values()
+          );
+
+          const checkParams = new pg.Params({
+            user_id: userId,
+            key
+          });
+
+          // Check if the value exists.
+          const { rowCount } = await client.query(
+            `SELECT 1 FROM "user_store" WHERE user_id=${checkParams.id(
+              "user_id"
+            )} AND key=${checkParams.id("key")} LIMIT 1`,
+            checkParams.values()
+          );
+
+          return rowCount > 0
+            ? await (async () => {
+                const updateParams = new pg.Params({
+                  user_id: userId,
+                  key,
+                  value,
+                  tag
+                });
+
+                await client.query(
+                  `UPDATE "user_store" 
+                    SET ${updateParams.pairs(["value", "tag"])}
+                    WHERE
+                      ${checkParams.pair("user_id")} AND ${checkParams.pair(
+                    "key"
+                  )}                    `,
+                  updateParams.values()
+                );
+
+                return { created: true as true, edit: "update" as "update" };
+              })()
+            : await (async () => {
+                await client.query(
+                  `INSERT INTO "user_store" (${params.columns()}) VALUES (${params.ids()})`,
+                  params.values()
+                );
+                return { created: true as true, edit: "insert" as "insert" };
+              })();
         });
-
-        const { rows } = await pool.query(
-          `INSERT INTO "user_store" (${params.columns()}) VALUES (${params.ids()})`,
-          params.values()
-        );
-
-        return { created: true as true };
+        return txResult.success
+          ? txResult.value
+          : {
+              created: false as false,
+              reason: "Unable to insert key and value."
+            };
       })();
 }

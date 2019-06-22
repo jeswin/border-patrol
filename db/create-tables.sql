@@ -59,6 +59,21 @@ CREATE TABLE "user_role" (
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
 
+CREATE TABLE "user_store_log" (
+    "user_id" character varying (64) NOT NULL,
+    "key" character varying (128) NOT NULL,
+    "value" character varying (1024) NOT NULL,
+    "tag" character varying (128) NOT NULL,
+    "timestamp" bigint NOT NULL,
+    CONSTRAINT "user_store_log_pkey" 
+        PRIMARY KEY ("user_id", "key", "timestamp"),
+    CONSTRAINT "user_store_log_user_fkey" 
+        FOREIGN KEY ("user_id") 
+        REFERENCES "user" ("id"));
+
+CREATE INDEX "idx_user_store_log_user_id_tag" 
+    ON user_store_log("user_id", "tag");
+
 CREATE TABLE "user_store" (
     "user_id" character varying (64) NOT NULL,
     "key" character varying (128) NOT NULL,
@@ -71,5 +86,41 @@ CREATE TABLE "user_store" (
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
 
+
 CREATE INDEX "idx_user_store_user_id_tag" 
     ON user_store("user_id", "tag");
+
+CREATE TABLE "user_resource" (
+    "id" character varying (64) NOT NULL,
+    "user_id"  character varying (64) NOT NULL,
+    "name" character varying (128) NOT NULL,    
+    "timestamp" bigint NOT NULL,
+    CONSTRAINT "resource_pkey" 
+        PRIMARY KEY ("id"),
+    CONSTRAINT "resource_user_fkey" 
+        FOREIGN KEY ("user_id") 
+        REFERENCES "user" ("id"));
+
+CREATE TABLE "user_resource_permission_log" (
+    "resource_id" character varying (64) NOT NULL,
+    "assigner"  character varying (64) NOT NULL,
+    "assignee" character varying (128) NOT NULL,    
+    "permission" character varying (128) NOT NULL,    
+    "timestamp" bigint NOT NULL,
+    CONSTRAINT "user_resource_permission_log_pkey" 
+        PRIMARY KEY ("id"),
+    CONSTRAINT "user_resource_permission_log_fkey" 
+        FOREIGN KEY ("user_id") 
+        REFERENCES "user" ("id"));
+
+CREATE TABLE "user_resource_permission_log" (
+    "resource_id" character varying (64) NOT NULL,
+    "assigner"  character varying (64) NOT NULL,
+    "assignee" character varying (128) NOT NULL,    
+    "permission" character varying (128) NOT NULL,    
+    "timestamp" bigint NOT NULL,
+    CONSTRAINT "resource_pkey" 
+        PRIMARY KEY ("id"),
+    CONSTRAINT "resource_user_fkey" 
+        FOREIGN KEY ("user_id") 
+        REFERENCES "user" ("id"));
