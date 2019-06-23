@@ -95,20 +95,24 @@ CREATE TABLE "user_resource" (
     "user_id"  character varying (64) NOT NULL,
     "name" character varying (128) NOT NULL,    
     "timestamp" bigint NOT NULL,
-    CONSTRAINT "resource_pkey" 
+    CONSTRAINT "user_resource_pkey" 
         PRIMARY KEY ("id"),
-    CONSTRAINT "resource_user_fkey" 
+    CONSTRAINT "user_resource_user_fkey" 
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
 
 CREATE TABLE "user_resource_permission_log" (
-    "resource_id" character varying (64) NOT NULL,
+    "user_resource_id" character varying (64) NOT NULL,
     "assigner"  character varying (64) NOT NULL,
-    "assignee" character varying (128) NOT NULL,    
+    "assignee" character varying (64) NOT NULL,    
     "permission" character varying (128) NOT NULL,    
     "timestamp" bigint NOT NULL,
     CONSTRAINT "user_resource_permission_log_pkey" 
         PRIMARY KEY ("id"),
-    CONSTRAINT "user_resource_permission_log_fkey" 
-        FOREIGN KEY ("user_id") 
+    CONSTRAINT "user_resource_permission_log_assigner_user_fkey" 
+        FOREIGN KEY ("assigner") 
+        REFERENCES "user" ("id")
+    CONSTRAINT "user_resource_permission_log_assignee_user_fkey" 
+        FOREIGN KEY ("assignee") 
         REFERENCES "user" ("id"));
+
