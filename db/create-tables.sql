@@ -112,15 +112,3 @@ CREATE TABLE "user_resource_permission_log" (
     CONSTRAINT "user_resource_permission_log_fkey" 
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
-
-CREATE TABLE "user_resource_permission_log" (
-    "resource_id" character varying (64) NOT NULL,
-    "assigner"  character varying (64) NOT NULL,
-    "assignee" character varying (128) NOT NULL,    
-    "permission" character varying (128) NOT NULL,    
-    "timestamp" bigint NOT NULL,
-    CONSTRAINT "resource_pkey" 
-        PRIMARY KEY ("id"),
-    CONSTRAINT "resource_user_fkey" 
-        FOREIGN KEY ("user_id") 
-        REFERENCES "user" ("id"));
