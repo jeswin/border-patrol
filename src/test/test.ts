@@ -1,7 +1,7 @@
 import "mocha";
 import "should";
-import serviceTest from "./service-test";
-import domainTest from "./domain-test";
+import serviceTest from "./serviceTest";
+import domainTest from "./domainTest";
 import { join } from "path";
 import { IDbConfig } from "psychopiggy";
 import { readFileSync } from "fs";

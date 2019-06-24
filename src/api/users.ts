@@ -1,17 +1,8 @@
-import * as user from "../../domain/user";
+import * as user from "../domain/user";
 import { IRouterContext } from "koa-router";
-import * as configModule from "../../config";
-import { setCookie } from "../../utils/cookie";
-import { ensureJWT } from "../authUtils";
-export { createKeyValuePair } from "./kvstore";
-export { createResource } from "./resource";
-
-export async function getUserIdAvailability(ctx: IRouterContext) {
-  const result = await user.getUserIdAvailability(ctx.params.userId);
-  ctx.body = {
-    exists: result.exists
-  };
-}
+import * as configModule from "../config";
+import { setCookie } from "../utils/cookie";
+import { ensureJWT } from "./authUtils";
 
 export async function createUser(ctx: IRouterContext) {
   const config = configModule.get();

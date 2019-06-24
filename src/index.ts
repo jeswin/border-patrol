@@ -10,14 +10,14 @@ import { join } from "path";
 import * as db from "./db";
 import * as jwt from "./utils/jwt";
 import * as config from "./config";
-import { authenticate } from "./api/authentication";
+import { authenticate } from "./api/authenticate";
 import {
-  getUserIdAvailability,
-  createUser,
   createKeyValuePair,
   createResource
-} from "./api/user";
+} from "./api/me";
 import { IAppConfig, IJWTConfig } from "./types";
+import { getUserIdAvailability } from "./api/userIds";
+import { createUser } from "./api/users";
 
 const grant = require("grant-koa");
 

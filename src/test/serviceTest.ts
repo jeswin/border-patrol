@@ -1,5 +1,5 @@
 import pg = require("pg");
-import { init } from "../";
+import { init } from "..";
 import request = require("supertest");
 import { IDbConfig } from "psychopiggy";
 import * as oauthAPIModule from "../api/oauth";
