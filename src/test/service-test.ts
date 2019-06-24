@@ -143,7 +143,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       });
 
       const response = await request(app)
-        .post("/store")
+        .post("/kvstore")
         .send({ username: "jeswin" })
         .set("Cookie", ["border-patrol-jwt=some_jwt"]);
 

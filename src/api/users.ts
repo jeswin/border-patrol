@@ -105,11 +105,9 @@ export async function createResource(ctx: IRouterContext) {
       ? ((ctx.status = 400),
         (ctx.body = "User id was not found in the JWT token."))
       : await (async () => {
-          const result = await user.createKeyValuePair(
+          const result = await user.createResource(
             userId,
-            ctx.request.body.key,
-            ctx.request.body.value,
-            ctx.request.body.tag
+            ctx.request.body.name
           );
           ctx.body = {
             success: true

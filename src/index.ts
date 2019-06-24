@@ -14,7 +14,8 @@ import { authenticate } from "./api/authentication";
 import {
   getUserIdAvailability,
   createUser,
-  createKeyValuePair
+  createKeyValuePair,
+  createResource
 } from "./api/users";
 import { IAppConfig, IJWTConfig } from "./types";
 
@@ -22,7 +23,7 @@ const grant = require("grant-koa");
 
 export async function init(configDir: string) {
   const oauthConfig = require(join(configDir, "oauth.js"));
-  const dbConfig = require(join(configDir, "db.js"));
+  const dbConfig = require(join(configDir, "pg.js"));
   const jwtConfig: IJWTConfig = require(join(configDir, "jwt.js"));
   const appConfig: IAppConfig = require(join(configDir, "app.js"));
 
@@ -57,8 +58,11 @@ export async function init(configDir: string) {
   /* Create a new user */
   router.post(`/users`, createUser);
 
-  /* Add a token for a user */
-  router.post(`/store`, createKeyValuePair);
+  /* Add a key value pair for a user */
+  router.post(`/kvstore`, createKeyValuePair);
+
+  /* Add a resource for a user */
+  router.post(`/resources`, createResource);
 
   // Start app
   var app = new Koa();

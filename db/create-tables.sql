@@ -13,7 +13,7 @@ CREATE TABLE "provider_user" (
     "timestamp" bigint NOT NULL,
     CONSTRAINT "provider_user_pkey" 
         PRIMARY KEY ("provider_user_id", "provider"),
-    CONSTRAINT "provider_user_user_fkey" 
+    CONSTRAINT "provider_user_user_id_fkey" 
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
 
@@ -24,7 +24,7 @@ CREATE TABLE "user_token" (
     "timestamp" bigint NOT NULL,
     CONSTRAINT "user_token_pkey" 
         PRIMARY KEY ("name", "user_id"),
-    CONSTRAINT "user_token_user_fkey" 
+    CONSTRAINT "user_token_user_id_fkey" 
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
 
@@ -42,7 +42,7 @@ CREATE TABLE "role_token" (
     "timestamp" bigint NOT NULL,
     CONSTRAINT "role_token_pkey" 
         PRIMARY KEY ("name", "role_name"),
-    CONSTRAINT "role_token_role_fkey" 
+    CONSTRAINT "role_token_role_name_fkey" 
         FOREIGN KEY ("role_name") 
         REFERENCES "role" ("name"));
 
@@ -52,27 +52,12 @@ CREATE TABLE "user_role" (
     "timestamp" bigint NOT NULL,
     CONSTRAINT "user_role_pkey" 
         PRIMARY KEY ("role_name", "user_id"),
-    CONSTRAINT "user_role_role_fkey" 
+    CONSTRAINT "user_role_role_name_fkey" 
         FOREIGN KEY ("role_name") 
         REFERENCES "role" ("name"),
-    CONSTRAINT "user_role_user_fkey" 
+    CONSTRAINT "user_role_user_id_fkey" 
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
-
-CREATE TABLE "user_store_log" (
-    "user_id" character varying (64) NOT NULL,
-    "key" character varying (128) NOT NULL,
-    "value" character varying (1024) NOT NULL,
-    "tag" character varying (128) NOT NULL,
-    "timestamp" bigint NOT NULL,
-    CONSTRAINT "user_store_log_pkey" 
-        PRIMARY KEY ("user_id", "key", "timestamp"),
-    CONSTRAINT "user_store_log_user_fkey" 
-        FOREIGN KEY ("user_id") 
-        REFERENCES "user" ("id"));
-
-CREATE INDEX "idx_user_store_log_user_id_tag" 
-    ON user_store_log("user_id", "tag");
 
 CREATE TABLE "user_store" (
     "user_id" character varying (64) NOT NULL,
@@ -82,7 +67,7 @@ CREATE TABLE "user_store" (
     "timestamp" bigint NOT NULL,
     CONSTRAINT "user_store_pkey" 
         PRIMARY KEY ("user_id", "key"),
-    CONSTRAINT "user_store_user_fkey" 
+    CONSTRAINT "user_store_user_id_fkey" 
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
 
@@ -91,28 +76,27 @@ CREATE INDEX "idx_user_store_user_id_tag"
     ON user_store("user_id", "tag");
 
 CREATE TABLE "user_resource" (
-    "id" character varying (64) NOT NULL,
-    "user_id"  character varying (64) NOT NULL,
-    "name" character varying (128) NOT NULL,    
+    "user_id" character varying (64) NOT NULL,
+    "key" character varying (128) NOT NULL,
     "timestamp" bigint NOT NULL,
     CONSTRAINT "user_resource_pkey" 
-        PRIMARY KEY ("id"),
-    CONSTRAINT "user_resource_user_fkey" 
+        PRIMARY KEY ("user_id", "key"),
+    CONSTRAINT "user_resource_user_id_fkey" 
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
 
-CREATE TABLE "user_resource_permission_log" (
-    "user_resource_id" character varying (64) NOT NULL,
-    "assigner"  character varying (64) NOT NULL,
+
+CREATE INDEX "idx_user_resource_user_id_tag" 
+    ON user_resource("user_id", "tag");
+
+CREATE TABLE "user_resource_permission" (
+    "resource_id" character varying (64) NOT NULL,
     "assignee" character varying (64) NOT NULL,    
     "permission" character varying (128) NOT NULL,    
     "timestamp" bigint NOT NULL,
-    CONSTRAINT "user_resource_permission_log_pkey" 
-        PRIMARY KEY ("id"),
-    CONSTRAINT "user_resource_permission_log_assigner_user_fkey" 
-        FOREIGN KEY ("assigner") 
-        REFERENCES "user" ("id")
-    CONSTRAINT "user_resource_permission_log_assignee_user_fkey" 
+    CONSTRAINT "user_resource_permission_pkey" 
+        PRIMARY KEY ("resource_id", "assignee"),
+    CONSTRAINT "user_resource_permission_assignee_fkey" 
         FOREIGN KEY ("assignee") 
         REFERENCES "user" ("id"));
 

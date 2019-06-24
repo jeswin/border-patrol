@@ -25,7 +25,7 @@ function run() {
 
   const configDir = process.env.CONFIG_DIR;
 
-  const dbConfig: IDbConfig = require(join(configDir, "db.js"));
+  const dbConfig: IDbConfig = require(join(configDir, "pg.js"));
 
   /* Sanity check to make sure we don't accidentally overwrite any database. */
   if (!dbConfig.database.endsWith("testdb")) {
