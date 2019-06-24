@@ -16,7 +16,7 @@ import {
   createUser,
   createKeyValuePair,
   createResource
-} from "./api/users";
+} from "./api/user";
 import { IAppConfig, IJWTConfig } from "./types";
 
 const grant = require("grant-koa");

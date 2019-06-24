@@ -140,7 +140,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       })) as typeof realVerify;
 
       const realCreateKeyValuePair = userModule.createKeyValuePair;
-      (userModule as any).addKeyValuePair = (async () => ({
+      (userModule as any).createKeyValuePair = (async () => ({
         created: true,
         edit: "insert"
       })) as typeof realCreateKeyValuePair;
@@ -163,10 +163,10 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
     //     value: { userId: "jeswin" }
     //   });
 
-    //   const realCreateResource = userModule.createUser;
-    //   (userModule as any).addKeyValuePair = async () => ({
+    //   const realCreateResource = userModule.createResource;
+    //   (userModule as any).createResource = (async () => ({
     //     created: true
-    //   });
+    //   })) as typeof realCreateResource;
 
     //   const response = await request(app)
     //     .post("/me/resources")
