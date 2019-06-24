@@ -38,7 +38,7 @@ export async function createKeyValuePair(
 
           // Check if the value exists.
           const { rowCount } = await client.query(
-            `SELECT 1 FROM "user_store" WHERE user_id=${checkParams.id(
+            `SELECT 1 FROM "user_kvstore" WHERE user_id=${checkParams.id(
               "user_id"
             )} AND key=${checkParams.id("key")} LIMIT 1`,
             checkParams.values()
@@ -54,7 +54,7 @@ export async function createKeyValuePair(
                 });
 
                 await client.query(
-                  `UPDATE "user_store" 
+                  `UPDATE "user_kvstore" 
                   SET ${updateParams.pairs(["value", "tag"])}
                   WHERE
                     ${checkParams.pair("user_id")} AND ${checkParams.pair(
@@ -67,7 +67,7 @@ export async function createKeyValuePair(
               })()
             : await (async () => {
                 await client.query(
-                  `INSERT INTO "user_store" (${params.columns()}) VALUES (${params.ids()})`,
+                  `INSERT INTO "user_kvstore" (${params.columns()}) VALUES (${params.ids()})`,
                   params.values()
                 );
                 return { created: true as true, edit: "insert" as "insert" };

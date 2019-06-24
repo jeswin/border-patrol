@@ -7,6 +7,20 @@ import * as githubModule from "../domain/oauth/github";
 import * as githubAPI from "../domain/oauth/github/api";
 
 export default function run(dbConfig: IDbConfig, configDir: string) {
+  async function selectAndMatchRows(
+    table: string,
+    count: number,
+    rowToMatch: number,
+    props: any
+  ) {
+    const pool = new pg.Pool(dbConfig);
+    const { rows } = await pool.query(`SELECT * FROM "${table}"`);
+    rows.length.should.equal(count);
+    Object.keys(props).forEach(k => {
+      props[k].should.equal(rows[rowToMatch][k]);
+    });
+  }
+
   describe("domain", async () => {
     async function writeSampleData() {
       const pool = new pg.Pool(dbConfig);
@@ -104,6 +118,8 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
           provider: "github"
         }
       });
+
+      await selectAndMatchRows("user", 1, 0, { id: "jeswin" });
     });
 
     it("user.createUser() doesn't overwrite existing user", async () => {
@@ -173,6 +189,8 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
         "locations"
       );
       result.should.deepEqual({ created: true, edit: "insert" });
+
+      await selectAndMatchRows("user_kvstore", 2, 1, { key: "region" });
     });
 
     it("user.addKeyValuePair() updates data", async () => {
@@ -184,6 +202,8 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
         "access"
       );
       result.should.deepEqual({ created: true, edit: "update" });
+
+      await selectAndMatchRows("user_kvstore", 1, 0, { tag: "access" });
     });
 
     it("user.addKeyValuePair() skips when user is missing", async () => {
@@ -198,6 +218,9 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
         created: false,
         reason: "User does not exist."
       });
+
+      await selectAndMatchRows("user_kvstore", 1, 0, { user_id: "jeswin" });
     });
+
   });
 }

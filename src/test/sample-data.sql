@@ -127,7 +127,7 @@ INSERT INTO "role_token"(
 		1559302695646
 	);
 
-INSERT INTO "user_store"(
+INSERT INTO "user_kvstore"(
 	"user_id",
 	"key",
 	"value",

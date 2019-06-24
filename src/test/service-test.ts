@@ -59,20 +59,22 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
     it("gets tokens", async () => {
       // Mock a few things.
       const realGetTokens = oauthAPIModule.getTokens;
-      (oauthAPIModule as any).getTokens = async (
+      (oauthAPIModule as any).getTokens = (async (
         ctx: RouterContext,
         provider: string
       ) => {
         ctx.session = { grant: { response: { access_token: "some_token" } } };
         return await realGetTokens(ctx, provider);
-      };
+      }) as typeof realGetTokens;
 
       const realGetTokensByAccessToken = githubModule.getTokensByAccessToken;
-      (githubModule as any).getTokensByAccessToken = async () => ({
+      (githubModule as any).getTokensByAccessToken = (async () => ({
+        isValidUser: false,
         oauthSuccess: true,
         jwt: "some_jwt",
         tokens: { userId: "some_userid" }
-      });
+      })) as typeof realGetTokensByAccessToken;
+
       const response = await request(app)
         .get("/oauth/token/github")
         .set("Cookie", [
@@ -96,20 +98,20 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
     it("creates a user", async () => {
       // Mock a few things.
       const realVerify = jwtModule.verify;
-      (jwtModule as any).verify = () => ({
+      (jwtModule as any).verify = (() => ({
         valid: true,
         value: {
           providerUserId: "jeswin",
           provider: "github"
         }
-      });
+      })) as typeof realVerify;
 
       const realCreateUser = userModule.createUser;
-      (userModule as any).createUser = async () => ({
+      (userModule as any).createUser = (async () => ({
         created: true,
         jwt: "some_other_jwt",
         tokens: { userId: "jeswin" }
-      });
+      })) as typeof realCreateUser;
 
       const response = await request(app)
         .post("/users")
@@ -132,25 +134,48 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
     it("adds a key value pair", async () => {
       // Mock a few things.
       const realVerify = jwtModule.verify;
-      (jwtModule as any).verify = () => ({
+      (jwtModule as any).verify = (() => ({
         valid: true,
         value: { userId: "jeswin" }
-      });
+      })) as typeof realVerify;
 
-      const realCreateUser = userModule.createUser;
-      (userModule as any).addKeyValuePair = async () => ({
-        created: true
-      });
+      const realCreateKeyValuePair = userModule.createKeyValuePair;
+      (userModule as any).addKeyValuePair = (async () => ({
+        created: true,
+        edit: "insert"
+      })) as typeof realCreateKeyValuePair;
 
       const response = await request(app)
-        .post("/kvstore")
-        .send({ username: "jeswin" })
+        .post("/me/kvstore")
         .set("Cookie", ["border-patrol-jwt=some_jwt"]);
 
       (jwtModule as any).verify = realVerify;
-      (userModule as any).createUser = realCreateUser;
+      (userModule as any).createKeyValuePair = realCreateKeyValuePair;
 
       JSON.parse(response.text).should.deepEqual({ success: true });
     });
+
+    // it("adds a resource", async () => {
+    //   // Mock a few things.
+    //   const realVerify = jwtModule.verify;
+    //   (jwtModule as any).verify = () => ({
+    //     valid: true,
+    //     value: { userId: "jeswin" }
+    //   });
+
+    //   const realCreateResource = userModule.createUser;
+    //   (userModule as any).addKeyValuePair = async () => ({
+    //     created: true
+    //   });
+
+    //   const response = await request(app)
+    //     .post("/me/resources")
+    //     .set("Cookie", ["border-patrol-jwt=some_jwt"]);
+
+    //   (jwtModule as any).verify = realVerify;
+    //   (userModule as any).createUser = realCreateResource;
+
+    //   JSON.parse(response.text).should.deepEqual({ success: true });
+    // });
   });
 }

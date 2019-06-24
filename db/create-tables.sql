@@ -59,35 +59,35 @@ CREATE TABLE "user_role" (
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
 
-CREATE TABLE "user_store" (
+CREATE TABLE "user_kvstore" (
     "user_id" character varying (64) NOT NULL,
     "key" character varying (128) NOT NULL,
     "value" character varying (1024) NOT NULL,
     "tag" character varying (128) NOT NULL,
     "timestamp" bigint NOT NULL,
-    CONSTRAINT "user_store_pkey" 
+    CONSTRAINT "user_kvstore_pkey" 
         PRIMARY KEY ("user_id", "key"),
-    CONSTRAINT "user_store_user_id_fkey" 
+    CONSTRAINT "user_kvstore_user_id_fkey" 
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
 
 
-CREATE INDEX "idx_user_store_user_id_tag" 
-    ON user_store("user_id", "tag");
+CREATE INDEX "idx_user_kvstore_user_id_tag" 
+    ON user_kvstore("user_id", "tag");
 
 CREATE TABLE "user_resource" (
     "user_id" character varying (64) NOT NULL,
-    "key" character varying (128) NOT NULL,
+    "name" character varying (128) NOT NULL,
     "timestamp" bigint NOT NULL,
     CONSTRAINT "user_resource_pkey" 
-        PRIMARY KEY ("user_id", "key"),
+        PRIMARY KEY ("user_id", "name"),
     CONSTRAINT "user_resource_user_id_fkey" 
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
 
 
 CREATE INDEX "idx_user_resource_user_id_tag" 
-    ON user_resource("user_id", "tag");
+    ON user_resource("user_id", "name");
 
 CREATE TABLE "user_resource_permission" (
     "resource_id" character varying (64) NOT NULL,
