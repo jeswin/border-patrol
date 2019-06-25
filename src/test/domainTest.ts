@@ -180,7 +180,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       (githubAPI as any).getUser = originalGetUser;
     });
 
-    it("user.addKeyValuePair() inserts data", async () => {
+    it("user.createKeyValuePair() inserts data", async () => {
       await writeSampleData();
       const result = await userModule.createKeyValuePair(
         "jeswin",
@@ -193,7 +193,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       await selectAndMatchRows("user_kvstore", 2, 1, { key: "region" });
     });
 
-    it("user.addKeyValuePair() updates data", async () => {
+    it("user.createKeyValuePair() updates data", async () => {
       await writeSampleData();
       const result = await userModule.createKeyValuePair(
         "jeswin",
@@ -206,7 +206,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       await selectAndMatchRows("user_kvstore", 1, 0, { tag: "access" });
     });
 
-    it("user.addKeyValuePair() skips when user is missing", async () => {
+    it("user.createKeyValuePair() skips when user is missing", async () => {
       await writeSampleData();
       const result = await userModule.createKeyValuePair(
         "alicecooper",
@@ -222,5 +222,15 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       await selectAndMatchRows("user_kvstore", 1, 0, { user_id: "jeswin" });
     });
 
+    it("user.createResource() creates a resource", async () => {
+      await writeSampleData();
+      const result = await userModule.createResource("jeswin", "todos");
+      result.should.deepEqual({ created: true });
+
+      await selectAndMatchRows("user_resource", 1, 0, {
+        user_id: "jeswin",
+        name: "todos"
+      });
+    });
   });
 }

@@ -1,2 +1,2 @@
 export { createKeyValuePair } from "./kvStore";
-export { createResource } from "./resource";
+export { createResource } from "./resources";
