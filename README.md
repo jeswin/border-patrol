@@ -1,5 +1,7 @@
 # border-patrol
 
+NOTE: This README is incomplete.
+
 A service which does oauth authentication and issues a JWT token.
 
 ## Installation
