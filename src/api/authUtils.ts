@@ -1,5 +1,6 @@
 import { IRouterContext } from "koa-router";
 import { IVerifiedValidJWT, verify } from "../utils/jwt";
+import { IRouter } from "express";
 
 export async function ensureJWT(
   ctx: IRouterContext,
@@ -34,4 +35,21 @@ export async function ensureJWT(
                   });
             })();
       })();
+}
+
+export async function ensureUserId(
+  ctx: IRouterContext,
+  then: (
+    userId: string,
+    verifiedJWT: IVerifiedValidJWT,
+    args: { jwt: string; isJwtInCookie: boolean }
+  ) => Promise<any>
+) {
+  return ensureJWT(ctx, async (verfiedJWT, args) => {
+    const userId = verfiedJWT.value.userId;
+    return !userId
+      ? ((ctx.status = 400),
+        (ctx.body = "User id was not found in the JWT token."))
+      : await then(userId, verfiedJWT, args);
+  });
 }
