@@ -2,7 +2,7 @@ import { sign } from "../../utils/jwt";
 import * as pg from "psychopiggy";
 import { getPool, withTransaction } from "../../db";
 export { createKeyValuePair } from "./kvStore";
-export { createResource } from "./resource";
+export { createResource } from "../resource";
 export { getRoles } from "./role";
 export { getTokensForUser, getTokensByProviderCredentials } from "./token";
 

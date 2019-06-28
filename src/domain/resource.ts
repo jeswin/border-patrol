@@ -1,6 +1,6 @@
 import * as pg from "psychopiggy";
-import { getUserIdAvailability } from ".";
-import { withTransaction } from "../../db";
+import { getUserIdAvailability } from "./user";
+import { withTransaction } from "../db";
 
 export type CreateResourceResult =
   | {
