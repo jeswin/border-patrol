@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS "user_resource_permission";
+DROP TABLE IF EXISTS "resource_permission";
 
-DROP TABLE IF EXISTS "user_resource";
+DROP TABLE IF EXISTS "resource";
 
 DROP TABLE IF EXISTS "user_kvstore";
 

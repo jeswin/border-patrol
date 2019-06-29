@@ -62,7 +62,7 @@ export async function init(configDir: string) {
   router.post(`/me/kvstore`, createKeyValuePair);
 
   /* Add a resource for a user */
-  router.post(`/me/resources`, createResource);
+  router.post(`/resources`, createResource);
 
   // Start app
   var app = new Koa();

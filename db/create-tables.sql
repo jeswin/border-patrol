@@ -71,26 +71,28 @@ CREATE TABLE "user_kvstore" (
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
 
-
 CREATE INDEX "idx_user_kvstore_user_id_tag" 
     ON user_kvstore("user_id", "tag");
 
 CREATE TABLE "resource" (
-    "resource_id" character varying (64) NOT NULL,
+    "id" character varying (64) NOT NULL,
     "timestamp" bigint NOT NULL,
     CONSTRAINT "resource_pkey" 
-        PRIMARY KEY ("resource_id"));
-
+        PRIMARY KEY ("id"));
 
 CREATE TABLE "resource_permission" (
     "resource_id" character varying (64) NOT NULL,
-    "assignee" character varying (64) NOT NULL,
-    "append" character(1) NOT NULL,
+    "user_id" character varying (64) NOT NULL,
     "read" character(1) NOT NULL,
+    "write" character(1) NOT NULL,
+    "execute" character(1) NOT NULL,
     "timestamp" bigint NOT NULL,
     CONSTRAINT "resource_permission_pkey" 
-        PRIMARY KEY ("resource_id", "assignee"),
-    CONSTRAINT "resource_permission_assignee_fkey" 
-        FOREIGN KEY ("assignee") 
+        PRIMARY KEY ("resource_id", "user_id"),
+    CONSTRAINT "resource_permission_resource_id_fkey" 
+        FOREIGN KEY ("resource_id") 
+        REFERENCES "resource" ("id"),
+    CONSTRAINT "resource_permission_user_id_fkey" 
+        FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
 

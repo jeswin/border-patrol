@@ -224,12 +224,18 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
 
     it("user.createResource() creates a resource", async () => {
       await writeSampleData();
-      const result = await userModule.createResource("jeswin", "todos");
-      result.should.deepEqual({ created: true });
+      const result = await userModule.createResource("jeswin");
+      result.created.should.be.true();
+      const id = (result as any).id;
+      (typeof id).should.equal("string");
 
-      await selectAndMatchRows("user_resource", 1, 0, {
-        user_id: "jeswin",
-        name: "todos"
+      await selectAndMatchRows("resource", 1, 0, {
+        id
+      });
+
+      await selectAndMatchRows("resource_permission", 1, 0, {
+        resource_id: id,
+        user_id: "jeswin"
       });
     });
   });
