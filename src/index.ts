@@ -11,10 +11,6 @@ import * as db from "./db";
 import * as jwt from "./utils/jwt";
 import * as config from "./config";
 import { authenticate } from "./api/authenticate";
-import {
-  createKeyValuePair,
-  createResource
-} from "./api/me";
 import { IAppConfig, IJWTConfig } from "./types";
 import { getUserIdAvailability } from "./api/userIds";
 import { createUser } from "./api/users";
@@ -57,12 +53,6 @@ export async function init(configDir: string) {
 
   /* Create a new user */
   router.post(`/users`, createUser);
-
-  /* Add a key value pair for a user */
-  router.post(`/me/kvstore`, createKeyValuePair);
-
-  /* Add a resource for a user */
-  router.post(`/resources`, createResource);
 
   // Start app
   var app = new Koa();
