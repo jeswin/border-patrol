@@ -3,6 +3,7 @@ import * as pg from "psychopiggy";
 import { getPool, withTransaction } from "../../db";
 export { getRoles } from "./role";
 export { getTokensForUser, getTokensByProviderCredentials } from "./token";
+export { createKeyValuePair } from "../user/kvstore";
 
 export async function getUserIdAvailability(
   userId: string

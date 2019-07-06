@@ -179,5 +179,31 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
 
       (githubAPI as any).getUser = originalGetUser;
     });
+
+    it("user.createKeyValuePair() inserts data", async () => {
+      await writeSampleData();
+      const result = await userModule.createKeyValuePair(
+        "jeswin",
+        "region",
+        "india",
+        "locations"
+      );
+      result.should.deepEqual({ created: true, edit: "insert" });
+
+      await selectAndMatchRows("kvstore", 2, 1, { key: "region" });
+    });
+
+    it("user.createKeyValuePair() updates data", async () => {
+      await writeSampleData();
+      const result = await userModule.createKeyValuePair(
+        "jeswin",
+        "group",
+        "india",
+        "access"
+      );
+      result.should.deepEqual({ created: true, edit: "update" });
+
+      await selectAndMatchRows("kvstore", 1, 0, { tag: "access" });
+    });
   });
 }

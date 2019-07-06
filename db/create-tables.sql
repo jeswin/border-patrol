@@ -58,3 +58,15 @@ CREATE TABLE "user_role" (
     CONSTRAINT "user_role_user_id_fkey" 
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
+
+CREATE TABLE "kvstore" (
+    "user_id" character varying (64) NOT NULL,
+    "key" character varying (128) NOT NULL,
+    "value" character varying (1024) NOT NULL,
+    "tag" character varying (128) NOT NULL,
+    "timestamp" bigint NOT NULL,
+    CONSTRAINT "kvstore_pkey" 
+        PRIMARY KEY ("user_id", "key"));
+
+CREATE INDEX "idx_kvstore_user_id_tag" 
+    ON kvstore("user_id", "tag");

@@ -14,6 +14,7 @@ import { authenticate } from "./api/authenticate";
 import { IAppConfig, IJWTConfig } from "./types";
 import { getUserIdAvailability } from "./api/userIds";
 import { createUser } from "./api/users";
+import { createKeyValuePair } from "./api/me";
 
 const grant = require("grant-koa");
 
@@ -53,6 +54,9 @@ export async function init(configDir: string) {
 
   /* Create a new user */
   router.post(`/users`, createUser);
+
+  /* Add a key value pair for a user */
+  router.post(`/me/kvstore`, createKeyValuePair);
 
   // Start app
   var app = new Koa();
