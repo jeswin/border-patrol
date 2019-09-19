@@ -28,7 +28,7 @@ function run() {
   const dbConfig: IDbConfig = require(join(configDir, "pg.js"));
 
   /* Sanity check to make sure we don't accidentally overwrite any database. */
-  if (!dbConfig.database.endsWith("testdb")) {
+  if (!dbConfig.database.startsWith("testdb")) {
     throw new Error("Test database name needs to be prefixed 'testdb'.");
   }
 
