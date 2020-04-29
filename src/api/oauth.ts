@@ -28,7 +28,7 @@ export async function getTokens(ctx: IRouterContext, provider: string) {
         "Invalid request. border-patrol-newuser-redirect was missing in cookie."))
     : await (async () => {
         const domain = configModule.get().domain;
-        const tokenGrant = ctx.session.grant;
+        const tokenGrant = (ctx as any).session.grant;
         const result =
           provider === "github"
             ? await github.getTokensByAccessToken(
