@@ -63,7 +63,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
         ctx: RouterContext,
         provider: string
       ) => {
-        ctx.session = { grant: { response: { access_token: "some_token" } } };
+        (ctx as any).session = { grant: { response: { access_token: "some_token" } } };
         return await realGetTokens(ctx, provider);
       }) as typeof realGetTokens;
 
