@@ -32,5 +32,4 @@ This is where you specify database connection strings, jwt and oauth keys etc.
 
 ## Authenticating
 
-Send the browser to {YOUR_DOMAIN}/authenticate/{OAUTH_SERVICE}?success=SOME_URL&newuser=OTHER_URL. For example: www.example.com/authenticate/github?success=example.com/success&newuser=example.com/newuser.
-The page will redirect to example.com/success if the authenticated user is found in the database, and to example.com/newuser if the authenticated user is not found in the database.
+Send the browser to {YOUR_DOMAIN}/authenticate/{OAUTH_SERVICE}?success=SOME_URL&newuser=OTHER_URL. For example: www.example.com/authenticate/github?success=example.com/success&newuser=example.com/newuser. The page will redirect to example.com/success if the authenticated user is found in the database, and to example.com/newuser if the authenticated user is not found in the database.
