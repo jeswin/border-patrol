@@ -125,8 +125,8 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
 
         const response = await request(app)
           .post("/users")
-          .send({ username: "jeswin" })
-          .set("Cookie", ["border-patrol-jwt=some_jwt"]);
+          .send({ userId: "jeswin" })
+          .set("border-patrol-jwt", "some_jwt");
 
         const cookies = (response.header["set-cookie"] as Array<
           string
@@ -160,7 +160,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
 
         const response = await request(app)
           .post("/me/kvstore")
-          .set("Cookie", ["border-patrol-jwt=some_jwt"]);
+          .set("border-patrol-jwt", "some_jwt");
 
         JSON.parse(response.text).should.deepEqual({ success: true });
       } finally {

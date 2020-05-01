@@ -5,9 +5,9 @@ export function setCookie(ctx: IRouterContext, name: string, value: string) {
   const config = configModule.get();
   ctx.cookies.set(name, value, {
     domain: config.domain,
-    httpOnly: config.cookies.httpOnly,
+    httpOnly: true,
     maxAge: config.cookies.maxAge,
-    overwrite: true
+    overwrite: true,
   });
 }
 
@@ -19,8 +19,8 @@ export function setTempCookie(
   const config = configModule.get();
   ctx.cookies.set(name, value, {
     domain: config.domain,
-    httpOnly: config.cookies.httpOnly,
-    overwrite: true
+    httpOnly: false,
+    overwrite: true,
   });
 }
 
@@ -28,7 +28,7 @@ export function clearCookie(ctx: IRouterContext, name: string) {
   const config = configModule.get();
   ctx.cookies.set(name, "", {
     domain: config.domain,
-    httpOnly: config.cookies.httpOnly,
-    overwrite: true
+    httpOnly: true,
+    overwrite: true,
   });
 }

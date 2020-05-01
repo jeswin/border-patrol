@@ -4,36 +4,23 @@ import { IRouter } from "express";
 
 export async function ensureJwt(
   ctx: IRouterContext,
-  then: (
-    verifiedJwt: IVerifiedValidJwt,
-    args: { jwt: string; isJwtInCookie: boolean }
-  ) => Promise<any>
+  then: (verifiedJwt: IVerifiedValidJwt, args: { jwt: string }) => Promise<any>
 ) {
-  const jwtInCookie: string | undefined = ctx.cookies.get("border-patrol-jwt");
-  const jwtInHeader: string = ctx.headers["border-patrol-jwt"];
+  const jwt: string = ctx.headers["border-patrol-jwt"];
 
-  return jwtInCookie && jwtInHeader && jwtInCookie !== jwtInHeader
-    ? /* JWT values in the cookie and the header are mismatched */
+  return !jwt
+    ? /* JWT was missing */
       ((ctx.status = 400),
       (ctx.body =
-        "When JWT is provided in both the cookie and in the header, they should have the same values."))
+        "Missing JWT token in request. Pass via cookies or in the header."))
     : await (async () => {
-        const jwt: string = jwtInCookie || jwtInHeader;
-        return !jwt
-          ? /* JWT was missing */
-            ((ctx.status = 400),
-            (ctx.body =
-              "Missing JWT token in request. Pass via cookies or in the header."))
-          : await (async () => {
-              const result = verify(jwt);
-              return !result.valid
-                ? /* Invalid JWT */
-                  ((ctx.status = 400), (ctx.body = "Invalid JWT token."))
-                : await then(result, {
-                    jwt,
-                    isJwtInCookie: typeof jwtInCookie !== "undefined"
-                  });
-            })();
+        const result = verify(jwt);
+        return !result.valid
+          ? /* Invalid JWT */
+            ((ctx.status = 400), (ctx.body = "Invalid JWT token."))
+          : await then(result, {
+              jwt,
+            });
       })();
 }
 
@@ -42,7 +29,7 @@ export async function ensureUserId(
   then: (
     userId: string,
     verifiedJwt: IVerifiedValidJwt,
-    args: { jwt: string; isJwtInCookie: boolean }
+    args: { jwt: string }
   ) => Promise<any>
 ) {
   return ensureJwt(ctx, async (verfiedJwt, args) => {

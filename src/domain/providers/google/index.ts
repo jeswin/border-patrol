@@ -11,12 +11,12 @@ export async function getJwtAndTokensWithGrant(
   // But revisit this later.
   const decodedToken = decode(idToken) as IJwt;  
   
-  const username = decodedToken.email;
+  const userId = decodedToken.email;
 
-  return username
+  return userId
     ? await (async () => {
         const jwtAndTokens = await user.getJwtAndTokensByProviderIdentity(
-          username,
+          userId,
           "google"
         );
         const result = {

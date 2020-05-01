@@ -8,12 +8,12 @@ import { sign } from "../../utils/jwt";
 const pbkdf2Func = promisify(pbkdf2);
 
 export async function authenticate(
-  username: string,
+  userId: string,
   password: string
 ): Promise<boolean> {
   const pool = getPool();
 
-  const params = new pg.Params({ user_id: username });
+  const params = new pg.Params({ user_id: userId });
 
   const { rows } = await pool.query(
     `SELECT user_id, salt, hash FROM "user" WHERE id=${params.id("user_id")}`,
@@ -31,17 +31,17 @@ export async function authenticate(
       })();
 }
 
-export async function createLocalUser(username: string, password: string) {
+export async function createLocalUser(userId: string, password: string) {
   var salt = randomBytes(128).toString("base64");
   var hash = await (
     await pbkdf2Func(password, salt, 1000, 64, "sha256")
   ).toString();
 
   const txResult = await withTransaction(async (client) => {
-    await insertUserIntoDb(username, username, "local", client);
+    await insertUserIntoDb(userId, userId, "local", client);
 
     const insertAuthParams = new pg.Params({
-      user_id: username,
+      user_id: userId,
       salt,
       hash,
       algorithm: "sha256",
@@ -57,8 +57,8 @@ export async function createLocalUser(username: string, password: string) {
   });
 
   const tokenData = {
-    userId: username,
-    providerUserId: username,
+    userId: userId,
+    providerUserId: userId,
     provider: "local",
   };
 

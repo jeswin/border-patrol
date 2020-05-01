@@ -8,11 +8,11 @@ export async function getJwtAndTokensWithGrant(
   const accessToken: string = grant.response.access_token;
   const data = await getUser(accessToken);
 
-  const username = data.login;
-  return username
+  const providerUserId = data.login;
+  return providerUserId
     ? await (async () => {
         const jwtAndTokens = await user.getJwtAndTokensByProviderIdentity(
-          username,
+          providerUserId,
           "github"
         );
         return {
