@@ -50,9 +50,6 @@ export async function init(configDir: string) {
   /* Check if a user-id is available */
   router.get(`/user-ids/:userId`, getUserIdAvailability);
 
-  /* Create a new user */
-  router.post(`/users`, createUser);
-
   /* Add a key value pair for a user */
   router.post(`/me/kvstore`, createKeyValuePair);
 
