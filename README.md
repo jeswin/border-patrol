@@ -19,13 +19,8 @@ npm i -g border-patrol
 You'd use something like this.
 
 ```sh
-(export PORT=5999 CONFIG_DIR=/some/path/to/config; border-patrol)
+border-patrol -p 8080 -c /path/to/your/config
 ```
-
-Where:
-
-- PORT is the port on which the service will run.
-- CONFIG_DIR is the directory in which config files are placed.
 
 An example directory containing config files (which are JS files) can be found under the 'example-config' directory.
 This is where you specify database connection strings, jwt and oauth keys etc.

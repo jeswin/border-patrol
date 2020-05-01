@@ -1,6 +1,6 @@
 {
   "name": "border-patrol",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "author": "Jeswin Kumar<jeswinpk@agilehead.com>",
   "contributors": [
     "Jeswin Kumar<jeswinpk@agilehead.com>"
@@ -34,12 +34,14 @@
     "pg": "^8.0.3",
     "psychopiggy": "^2.0.2",
     "request": "^2.88.2",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "yargs": "^15.3.1"
   },
   "devDependencies": {
     "@types/mocha": "^7.0.2",
     "@types/should": "^13.0.0",
     "@types/supertest": "^2.0.8",
+    "@types/yargs": "^15.0.4",
     "mocha": "^7.1.2",
     "should": "^13.2.3",
     "supertest": "^4.0.2"

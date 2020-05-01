@@ -1,5 +1,5 @@
 import pg = require("pg");
-import { init } from "..";
+import { startApp } from "..";
 import request = require("supertest");
 import { IDbConfig } from "psychopiggy";
 import * as oauthAPIModule from "../api/oauth";
@@ -10,12 +10,16 @@ import { RouterContext } from "koa-router";
 
 let app: any;
 
-export default function run(dbConfig: IDbConfig, configDir: string) {
+export default function run(
+  dbConfig: IDbConfig,
+  port: number,
+  configDir: string
+) {
   describe("service", async () => {
     let app: any;
 
     before(async () => {
-      const service = await init(configDir);
+      const service = await startApp(port, configDir);
       app = service.listen();
     });
 

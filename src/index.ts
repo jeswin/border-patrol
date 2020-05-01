@@ -5,8 +5,10 @@ import session = require("koa-session");
 import mount = require("koa-mount");
 import Router = require("koa-router");
 import bodyParser = require("koa-bodyparser");
-import { handleProviderCallback } from "./api/oauth";
+import yargs = require("yargs");
 import { join } from "path";
+
+import { handleProviderCallback } from "./api/oauth";
 import * as db from "./db";
 import * as jwt from "./utils/jwt";
 import * as config from "./config";
@@ -19,7 +21,12 @@ import { login } from "./api/localAccount";
 
 const grant = require("grant-koa");
 
-export async function init(configDir: string) {
+const argv = yargs.options({
+  c: { type: "string", alias: "config" },
+  p: { type: "number", default: 8080, alias: "port" },
+}).argv;
+
+export async function startApp(port: number, configDir: string) {
   const oauthConfig = require(join(configDir, "oauth.js"));
   const dbConfig = require(join(configDir, "pg.js"));
   const jwtConfig: IJwtConfig = require(join(configDir, "jwt.js"));
@@ -75,24 +82,25 @@ export async function init(configDir: string) {
   app.use(router.routes());
   app.use(router.allowedMethods());
 
+  app.listen(port);
+  
   return app;
 }
 
 if (require.main === module) {
-  if (!process.env.PORT) {
-    throw new Error("The port should be specified in process.env.PORT");
+  if (!argv.p) {
+    throw new Error("The port should be specified with the -p option.");
   }
-
-  if (!process.env.CONFIG_DIR) {
+  
+  if (!argv.c) {
     throw new Error(
-      "The configuration directory should be specified in process.env.CONFIG_DIR"
-    );
-  }
-
-  const port: number = parseInt(process.env.PORT);
-
-  init(process.env.CONFIG_DIR).then((app) => {
-    app.listen(port);
+      "The configuration directory should be specified with the -c option."
+      );
+    }
+    
+    const configDir = argv.c;
+    const port = argv.p;
+    
+    startApp(port, configDir);
     console.log(`listening on port ${port}`);
-  });
 }
