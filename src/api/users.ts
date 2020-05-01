@@ -2,7 +2,7 @@ import * as user from "../domain/user";
 import { IRouterContext } from "koa-router";
 import * as configModule from "../config";
 import { setCookie } from "../utils/cookie";
-import { ensureJWT } from "./authUtils";
+import { ensureJwt } from "./authUtils";
 
 export async function createUser(ctx: IRouterContext) {
   const config = configModule.get();
@@ -20,7 +20,7 @@ export async function createUser(ctx: IRouterContext) {
     };
   }
 
-  return ensureJWT(ctx, async (result, { isJwtInCookie }) => {
+  return ensureJwt(ctx, async (result, { isJwtInCookie }) => {
     const createUserResult = await user.createUser(
       ctx.request.body.userId,
       result.value.providerUserId,

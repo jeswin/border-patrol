@@ -3,8 +3,9 @@ import { join } from "path";
 import { readFileSync } from "fs";
 import { IDbConfig } from "psychopiggy";
 import * as userModule from "../domain/user";
-import * as githubModule from "../domain/oauth/github";
-import * as githubAPI from "../domain/oauth/github/api";
+import * as localAccountModule from "../domain/localAccount";
+import * as githubModule from "../domain/providers/github";
+import * as githubAPI from "../domain/providers/github/api";
 
 export default function run(dbConfig: IDbConfig, configDir: string) {
   async function selectAndMatchRows(
@@ -16,7 +17,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
     const pool = new pg.Pool(dbConfig);
     const { rows } = await pool.query(`SELECT * FROM "${table}"`);
     rows.length.should.equal(count);
-    Object.keys(props).forEach(k => {
+    Object.keys(props).forEach((k) => {
       props[k].should.equal(rows[rowToMatch][k]);
     });
   }
@@ -68,9 +69,9 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       result.should.deepEqual([]);
     });
 
-    it("user.getTokensByProviderCredentials() returns tokens", async () => {
+    it("user.getJwtAndTokensByProviderIdentity() returns tokens", async () => {
       await writeSampleData();
-      const result = await userModule.getTokensByProviderCredentials(
+      const result = await userModule.getJwtAndTokensByProviderIdentity(
         "jeswin",
         "github"
       );
@@ -84,8 +85,8 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
           provider: "github",
           roles: "coreteam,admin",
           full: "yes",
-          dashboard: "yes"
-        }
+          dashboard: "yes",
+        },
       });
     });
 
@@ -96,7 +97,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
         userId: "jeswin",
         roles: "coreteam,admin",
         full: "yes",
-        dashboard: "yes"
+        dashboard: "yes",
       });
     });
 
@@ -115,11 +116,31 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
         tokens: {
           userId: "jeswin",
           providerUserId: "jeswin",
-          provider: "github"
-        }
+          provider: "github",
+        },
       });
 
       await selectAndMatchRows("user", 1, 0, { id: "jeswin" });
+    });
+
+    it("localAccount.createLocalUser() creates a local user", async () => {
+      const result = await localAccountModule.createLocalUser(
+        "jeswin",
+        "secret"
+      );
+      (result as any).jwt = "something";
+      result.should.deepEqual({
+        created: true,
+        jwt: "something",
+        tokens: {
+          userId: "jeswin",
+          providerUserId: "jeswin",
+          provider: "local",
+        },
+      });
+
+      await selectAndMatchRows("user", 1, 0, { id: "jeswin" });
+      await selectAndMatchRows("local_user_auth", 1, 0, { user_id: "jeswin" });
     });
 
     it("user.createUser() doesn't overwrite existing user", async () => {
@@ -127,11 +148,23 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       const result = await userModule.createUser("jeswin", "jeswin", "github");
       result.should.deepEqual({
         created: false,
-        reason: "User already exists."
+        reason: "User already exists.",
       });
     });
 
-    it("github.getTokensByAccessToken() returns tokens", async () => {
+    it("localAccount.createLocalUser() doesn't overwrite existing user", async () => {
+      await writeSampleData();
+      const result = await localAccountModule.createLocalUser(
+        "jeswin",
+        "secret"
+      );
+      result.should.deepEqual({
+        created: false,
+        reason: "Could not create new local user.",
+      });
+    });
+
+    it("github.getJwtAndTokensWithGrant() returns tokens", async () => {
       await writeSampleData();
       const originalGetUser: typeof githubAPI.getUser = githubAPI.getUser;
 
@@ -140,26 +173,31 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
           ? { login: "jeswin" }
           : { error: "Invalid token." };
 
-      const result = await githubModule.getTokensByAccessToken("test_token");
-      (result as any).jwt = "something";
-      result.should.deepEqual({
-        oauthSuccess: true,
-        isValidUser: true,
-        jwt: "something",
-        tokens: {
-          userId: "jeswin",
-          roles: "coreteam,admin",
-          full: "yes",
-          dashboard: "yes",
-          providerUserId: "jeswin",
-          provider: "github"
-        }
-      });
+      try {
+        const result = await githubModule.getJwtAndTokensWithGrant({
+          response: { access_token: "test_token" },
+        });
+        (result as any).jwt = "something";
 
-      (githubAPI as any).getUser = originalGetUser;
+        result.should.deepEqual({
+          success: true,
+          isValidUser: true,
+          jwt: "something",
+          tokens: {
+            userId: "jeswin",
+            roles: "coreteam,admin",
+            full: "yes",
+            dashboard: "yes",
+            providerUserId: "jeswin",
+            provider: "github",
+          },
+        });
+      } finally {
+        (githubAPI as any).getUser = originalGetUser;
+      }
     });
 
-    it("github.getTokensByAccessToken() returns tokens for missing user", async () => {
+    it("github.getJwtAndTokensWithGrant() returns tokens for missing user", async () => {
       await writeSampleData();
       const originalGetUser: typeof githubAPI.getUser = githubAPI.getUser;
 
@@ -168,16 +206,20 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
           ? { login: "alice" }
           : { error: "Invalid token." };
 
-      const result = await githubModule.getTokensByAccessToken("test_token");
-      (result as any).jwt = "something";
-      result.should.deepEqual({
-        oauthSuccess: true,
-        isValidUser: false,
-        jwt: "something",
-        tokens: { providerUserId: "alice", provider: "github" }
-      });
-
-      (githubAPI as any).getUser = originalGetUser;
+      try {
+        const result = await githubModule.getJwtAndTokensWithGrant({
+          response: { access_token: "test_token" },
+        });
+        (result as any).jwt = "something";
+        result.should.deepEqual({
+          success: true,
+          isValidUser: false,
+          jwt: "something",
+          tokens: { providerUserId: "alice", provider: "github" },
+        });
+      } finally {
+        (githubAPI as any).getUser = originalGetUser;
+      }
     });
 
     it("user.createKeyValuePair() inserts data", async () => {

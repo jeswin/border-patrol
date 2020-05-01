@@ -1,9 +1,9 @@
 import jwt = require("jsonwebtoken");
-import { IJWTConfig } from "../types";
+import { IJwtConfig } from "../types";
 
-let config: IJWTConfig;
+let config: IJwtConfig;
 
-export function init(c: IJWTConfig) {
+export function init(c: IJwtConfig) {
   if (!config) {
     config = c;
   } else {
@@ -15,28 +15,33 @@ export function sign(payload: any) {
   return jwt.sign(payload, config.privateKey, config.signOptions);
 }
 
-export type IJWT = {
+export type IJwt = {
   [key: string]: string;
 };
 
-export type IVerifiedInvalidJWT = {
+export type IVerifiedInvalidJwt = {
   valid: false;
 };
 
-export type IVerifiedValidJWT = {
+export type IVerifiedValidJwt = {
   valid: true;
-  value: IJWT;
+  value: IJwt;
 };
 
-export type IVerifiedJWT = IVerifiedInvalidJWT | IVerifiedValidJWT;
+export type IVerifiedJwt = IVerifiedInvalidJwt | IVerifiedValidJwt;
 
-export function verify(token: string): IVerifiedJWT {
+export function verify(token: string): IVerifiedJwt {
   try {
     return {
       valid: true,
-      value: jwt.verify(token, config.publicKey) as any
+      value: jwt.verify(token, config.publicKey) as any,
     };
   } catch {
     return { valid: false };
   }
+}
+
+export function decode(token: string): IJwt | undefined {
+  const result = jwt.decode(token) as any;
+  return result || undefined;
 }

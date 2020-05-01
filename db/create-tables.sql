@@ -1,10 +1,21 @@
 CREATE TABLE "user" (
     "id" character varying (64) NOT NULL,
-    "first_name" character varying (64) NOT NULL,
-    "last_name" character varying (64) NOT NULL,    
+    "name" character varying (128) NOT NULL,
     "timestamp" bigint NOT NULL,
     CONSTRAINT "user_pkey" 
         PRIMARY KEY ("id"));
+
+CREATE TABLE "local_user_auth" (
+    "user_id" character varying (64) NOT NULL,
+    "hash" character varying (256) NOT NULL,
+    "salt" character varying (256) NOT NULL,
+    "algorithm" character varying (32) NOT NULL,
+    "timestamp" bigint NOT NULL,
+    CONSTRAINT "local_user_auth_pkey" 
+        PRIMARY KEY ("user_id"),
+    CONSTRAINT "user_auth_user_id_fkey" 
+        FOREIGN KEY ("user_id") 
+        REFERENCES "user" ("id"));
 
 CREATE TABLE "provider_user" (
     "user_id" character varying (64) NOT NULL,

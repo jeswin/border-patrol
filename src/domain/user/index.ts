@@ -1,9 +1,10 @@
 import { sign } from "../../utils/jwt";
 import * as pg from "psychopiggy";
 import { getPool, withTransaction } from "../../db";
+import { PoolClient } from "pg";
 export { getRoles } from "./role";
-export { getTokensForUser, getTokensByProviderCredentials } from "./token";
 export { createKeyValuePair } from "../user/kvstore";
+export { getTokensForUser, getJwtAndTokensByProviderIdentity } from "./token";
 
 export async function getUserIdAvailability(
   userId: string
@@ -35,7 +36,7 @@ export async function getUserId(
 
   const params = new pg.Params({
     providerUserId,
-    provider
+    provider,
   });
 
   const { rows } = await pool.query(
@@ -48,10 +49,10 @@ export async function getUserId(
   return rows.length
     ? {
         isValidUser: true,
-        userId: rows[0].user_id
+        userId: rows[0].user_id,
       }
     : {
-        isValidUser: false
+        isValidUser: false,
       };
 }
 
@@ -75,43 +76,51 @@ export async function createUser(
   return getUserIdResult.isValidUser
     ? { created: false as false, reason: "User already exists." }
     : await (async () => {
-        const txResult = await withTransaction(async client => {
-          const insertUserParams = new pg.Params({
-            id: userId,
-            first_name: "NA",
-            last_name: "NA",
-            timestamp: Date.now()
-          });
-
-          await client.query(
-            `INSERT INTO "user" (${insertUserParams.columns()}) VALUES (${insertUserParams.ids()})`,
-            insertUserParams.values()
-          );
-
-          const insertProviderUserParams = new pg.Params({
-            user_id: userId,
-            provider_user_id: providerUserId,
-            provider,
-            timestamp: Date.now()
-          });
-
-          await client.query(
-            `INSERT INTO "provider_user" (${insertProviderUserParams.columns()}) VALUES (${insertProviderUserParams.ids()})`,
-            insertProviderUserParams.values()
-          );
-
-          return true;
-        });
+        const txResult = await withTransaction((client) =>
+          insertUserIntoDb(userId, providerUserId, provider, client)
+        );
 
         return txResult.success
           ? {
               created: true as true,
               jwt: sign({ userId, providerUserId, provider }),
-              tokens: { userId, providerUserId, provider }
+              tokens: { userId, providerUserId, provider },
             }
           : {
               created: false as false,
-              reason: "Could not create the new user."
+              reason: "Could not create the new user.",
             };
       })();
+}
+
+export async function insertUserIntoDb(
+  userId: string,
+  providerUserId: string,
+  provider: string,
+  client: PoolClient
+) {
+  const insertUserParams = new pg.Params({
+    id: userId,
+    name: userId,
+    timestamp: Date.now(),
+  });
+
+  await client.query(
+    `INSERT INTO "user" (${insertUserParams.columns()}) VALUES (${insertUserParams.ids()})`,
+    insertUserParams.values()
+  );
+
+  const insertProviderUserParams = new pg.Params({
+    user_id: userId,
+    provider_user_id: providerUserId,
+    provider,
+    timestamp: Date.now(),
+  });
+
+  await client.query(
+    `INSERT INTO "provider_user" (${insertProviderUserParams.columns()}) VALUES (${insertProviderUserParams.ids()})`,
+    insertProviderUserParams.values()
+  );
+
+  return true;
 }

@@ -1,26 +1,37 @@
 INSERT INTO "user"(
 	"id",
-	"first_name",
-	"last_name",
+	"name",
 	"timestamp"
 )
 	VALUES (
 		'jeswin',
-		'Jeswin',
-		'Kumar',
+		'Jeswin Kumar',
+		1559302695646
+	);
+
+INSERT INTO "local_user_auth"(
+	"user_id",
+	"hash",
+	"salt",
+	"algorithm",
+	"timestamp"
+)
+	VALUES (
+		'jeswin',
+		'some_hash',
+		'some_salt',
+		'sha256',
 		1559302695646
 	);
 
 INSERT INTO "user"(
 	"id",
-	"first_name",
-	"last_name",
+	"name",
 	"timestamp"
 )
 	VALUES (
 		'eddie',
-		'Eddie',
-		'Noname',
+		'Eddie Noname',
 		1559302695646
 	);
 

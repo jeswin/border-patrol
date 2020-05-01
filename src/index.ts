@@ -5,23 +5,24 @@ import session = require("koa-session");
 import mount = require("koa-mount");
 import Router = require("koa-router");
 import bodyParser = require("koa-bodyparser");
-import { getTokens } from "./api/oauth";
+import { handleProviderCallback } from "./api/oauth";
 import { join } from "path";
 import * as db from "./db";
 import * as jwt from "./utils/jwt";
 import * as config from "./config";
 import { authenticate } from "./api/authenticate";
-import { IAppConfig, IJWTConfig } from "./types";
+import { IAppConfig, IJwtConfig } from "./types";
 import { getUserIdAvailability } from "./api/userIds";
 import { createUser } from "./api/users";
 import { createKeyValuePair } from "./api/me";
+import { login } from "./api/localAccount";
 
 const grant = require("grant-koa");
 
 export async function init(configDir: string) {
   const oauthConfig = require(join(configDir, "oauth.js"));
   const dbConfig = require(join(configDir, "pg.js"));
-  const jwtConfig: IJWTConfig = require(join(configDir, "jwt.js"));
+  const jwtConfig: IJwtConfig = require(join(configDir, "jwt.js"));
   const appConfig: IAppConfig = require(join(configDir, "app.js"));
 
   // Init utils
@@ -32,20 +33,17 @@ export async function init(configDir: string) {
   // Set up routes
   const router = new Router();
 
-  const allServices = (appConfig.enablePasswordAuth ? ["login"] : []).concat(
-    appConfig.enabledOAuthServices
-  );
-
   /* Entry point for all auth services */
-  allServices.forEach(service => {
+  appConfig.enabledProviders.forEach((service) => {
     router.get(`/authenticate/${service}`, authenticate(service));
   });
 
   /* OAuth services need a callback */
-  appConfig.enabledOAuthServices.forEach(oauthService =>
+  appConfig.enabledProviders.forEach((oauthService) =>
     router.get(
       `/oauth/token/${oauthService}`,
-      async (ctx: Router.RouterContext) => await getTokens(ctx, oauthService)
+      async (ctx: Router.RouterContext) =>
+        await handleProviderCallback(ctx, oauthService)
     )
   );
 
@@ -57,6 +55,16 @@ export async function init(configDir: string) {
 
   /* Add a key value pair for a user */
   router.post(`/me/kvstore`, createKeyValuePair);
+
+  if (appConfig.enablePasswordAuth) {
+    router.post("/login", login);
+  }
+
+  for (const key in oauthConfig) {
+    if (key !== "defaults") {
+      oauthConfig[key].callback = `/oauth/token/${key}`;
+    }
+  }
 
   // Start app
   var app = new Koa();
@@ -83,7 +91,7 @@ if (require.main === module) {
 
   const port: number = parseInt(process.env.PORT);
 
-  init(process.env.CONFIG_DIR).then(app => {
+  init(process.env.CONFIG_DIR).then((app) => {
     app.listen(port);
     console.log(`listening on port ${port}`);
   });

@@ -4,11 +4,11 @@ import { getRoles } from "./role";
 import { getUserId } from ".";
 import { sign } from "../../utils/jwt";
 
-export type getTokensForUserResult = { [key: string]: string };
+export type GetTokensForUserResult = { [key: string]: string };
 
 export async function getTokensForUser(
   userId: string
-): Promise<getTokensForUserResult> {
+): Promise<GetTokensForUserResult> {
   const pool = getPool();
 
   const userTokenParams = new pg.Params({
@@ -65,7 +65,7 @@ export interface IGetTokensResult {
   tokens: { [key: string]: string };
 }
 
-export async function getTokensByProviderCredentials(
+export async function getJwtAndTokensByProviderIdentity(
   providerUserId: string,
   provider: string
 ): Promise<IGetTokensResult> {

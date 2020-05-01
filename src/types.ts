@@ -6,10 +6,10 @@ export interface IAppConfig {
     maxAge: number;
   };
   enablePasswordAuth: boolean;
-  enabledOAuthServices: string[];
+  enabledProviders: string[];
 }
 
-export interface IJWTConfig {
+export interface IJwtConfig {
   publicKey: string;
   privateKey: string;
   signOptions: object;

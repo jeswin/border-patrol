@@ -6,5 +6,5 @@ module.exports = {
     maxAge: 3600 * 24 * 30 * 1000
   },
   enablePasswordAuth: false,
-  enabledOAuthServices: ["github", "google"]
+  enabledProviders: ["github", "google"]
 };
