@@ -3,8 +3,12 @@ module.exports = {
   sessionKeys: "grant_555_666_777",
   cookies: {
     httpOnly: false,
-    maxAge: 3600 * 24 * 30 * 1000
+    maxAge: 3600 * 24 * 30 * 1000,
   },
   enablePasswordAuth: false,
-  enabledProviders: ["github", "google"]
+  enabledProviders: ["github", "google"],
+  account: {
+    minUserIdLength: 4,
+    maxUserIdLength: 8,
+  },
 };
