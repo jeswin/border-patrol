@@ -7,6 +7,10 @@ export interface IAppConfig {
   };
   enablePasswordAuth: boolean;
   enabledProviders: string[];
+  account?: {
+    minUserIdLength?: number;
+    maxUserIdLength?: number;
+  };
 }
 
 export interface IJwtConfig {

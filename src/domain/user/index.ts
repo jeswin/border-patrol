@@ -2,6 +2,8 @@ import { sign } from "../../utils/jwt";
 import * as pg from "psychopiggy";
 import { getPool, withTransaction } from "../../db";
 import { PoolClient } from "pg";
+import * as configModule from "../../config";
+
 export { getRoles } from "./role";
 export { createKeyValuePair } from "../user/kvstore";
 export { getTokensForUser, getJwtAndTokensByProviderIdentity } from "./token";
@@ -72,24 +74,44 @@ export async function createUser(
   providerUserId: string,
   provider: string
 ): Promise<CreateUserResult> {
-  const getUserIdResult = await getUserId(providerUserId, provider);
-  return getUserIdResult.isValidUser
-    ? { created: false as false, reason: "User already exists." }
-    : await (async () => {
-        const txResult = await withTransaction((client) =>
-          insertUserIntoDb(userId, providerUserId, provider, client)
-        );
+  const config = configModule.get();
 
-        return txResult.success
-          ? {
-              created: true as true,
-              jwt: sign({ userId, providerUserId, provider }),
-              tokens: { userId, providerUserId, provider },
-            }
-          : {
-              created: false as false,
-              reason: "Could not create the new user.",
-            };
+  return config.account &&
+    config.account.minUserIdLength &&
+    userId.length < config.account.minUserIdLength
+    ? {
+        created: false as false,
+        reason:
+          "UserId should be at least ${config.account.minLength} characters long.",
+      }
+    : config.account &&
+      config.account.maxUserIdLength &&
+      userId.length > config.account.maxUserIdLength
+    ? {
+        created: false as false,
+        reason:
+          "UserId should be at most ${config.account.maxLength} characters long.",
+      }
+    : await (async () => {
+        const getUserIdResult = await getUserId(providerUserId, provider);
+        return getUserIdResult.isValidUser
+          ? { created: false as false, reason: "User already exists." }
+          : await (async () => {
+              const txResult = await withTransaction((client) =>
+                insertUserIntoDb(userId, providerUserId, provider, client)
+              );
+
+              return txResult.success
+                ? {
+                    created: true as true,
+                    jwt: sign({ userId, providerUserId, provider }),
+                    tokens: { userId, providerUserId, provider },
+                  }
+                : {
+                    created: false as false,
+                    reason: "Could not create the new user.",
+                  };
+            })();
       })();
 }
 
