@@ -21,7 +21,7 @@ export async function getUserIdAvailability(
       }
     : config.account &&
       config.account.maxUserIdLength &&
-      userId.length < config.account.maxUserIdLength
+      userId.length > config.account.maxUserIdLength
     ? {
         available: false,
       }
