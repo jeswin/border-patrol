@@ -13,7 +13,7 @@ CREATE TABLE "local_user_auth" (
     "timestamp" bigint NOT NULL,
     CONSTRAINT "local_user_auth_pkey" 
         PRIMARY KEY ("user_id"),
-    CONSTRAINT "user_auth_user_id_fkey" 
+    CONSTRAINT "local_user_auth_user_id_fkey" 
         FOREIGN KEY ("user_id") 
         REFERENCES "user" ("id"));
 
