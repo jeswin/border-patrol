@@ -23,7 +23,7 @@ export default function run(
       app = service.listen();
     });
 
-    it("says userid exists", async () => {
+    it("says userid is unavailable", async () => {
       const pool = new pg.Pool(dbConfig);
       await pool.query(`
         INSERT INTO "user"
@@ -33,15 +33,15 @@ export default function run(
       const response = await request(app).get("/user-ids/jeswin");
       response.status.should.equal(200);
       JSON.parse(response.text).should.deepEqual({
-        exists: true,
+        available: false,
       });
     });
 
-    it("says missing userid is missing", async () => {
+    it("says available userid is available", async () => {
       const response = await request(app).get("/user-ids/alice");
       response.status.should.equal(200);
       JSON.parse(response.text).should.deepEqual({
-        exists: false,
+        available: true,
       });
     });
 

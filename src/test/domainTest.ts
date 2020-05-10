@@ -33,16 +33,16 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       await pool.query(sampleDataSQL);
     }
 
-    it("user.getUserIdAvailability() returns true when user exists", async () => {
+    it("user.getUserIdAvailability() returns false when user exists", async () => {
       await writeSampleData();
       const result = await userModule.getUserIdAvailability("jeswin");
-      result.should.deepEqual({ exists: true });
+      result.should.deepEqual({ available: false });
     });
 
-    it("user.getUserIdAvailability() returns false when user doesn't exist", async () => {
+    it("user.getUserIdAvailability() returns true when user doesn't exist", async () => {
       await writeSampleData();
       const result = await userModule.getUserIdAvailability("alice");
-      result.should.deepEqual({ exists: false });
+      result.should.deepEqual({ available: true });
     });
 
     it("user.getUserId() returns userid with provider credentials", async () => {

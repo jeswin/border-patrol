@@ -10,17 +10,34 @@ export { getTokensForUser, getJwtAndTokensByProviderIdentity } from "./token";
 
 export async function getUserIdAvailability(
   userId: string
-): Promise<{ exists: boolean }> {
-  const pool = getPool();
+): Promise<{ available: boolean }> {
+  const config = configModule.get();
 
-  const params = new pg.Params({ id: userId });
+  return config.account &&
+    config.account.minUserIdLength &&
+    userId.length < config.account.minUserIdLength
+    ? {
+        available: false,
+      }
+    : config.account &&
+      config.account.maxUserIdLength &&
+      userId.length < config.account.maxUserIdLength
+    ? {
+        available: false,
+      }
+    : await (async () => {
+        const pool = getPool();
+        const params = new pg.Params({ id: userId });
 
-  const { rows } = await pool.query(
-    `SELECT id FROM "user" WHERE id=${params.id("id")}`,
-    params.values()
-  );
+        const { rows } = await pool.query(
+          `SELECT id FROM "user" WHERE id=${params.id("id")}`,
+          params.values()
+        );
 
-  return { exists: rows.length !== 0 };
+        return {
+          available: rows.length === 0,
+        };
+      })();
 }
 
 export type GetUserIdResult =
