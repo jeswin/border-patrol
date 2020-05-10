@@ -11,33 +11,39 @@ export { getTokensForUser, getJwtAndTokensByProviderIdentity } from "./token";
 export async function getUserIdAvailability(
   userId: string
 ): Promise<{ available: boolean }> {
-  const config = configModule.get();
+  return userId
+    ? await (async () => {
+        const config = configModule.get();
 
-  return config.account &&
-    config.account.minUserIdLength &&
-    userId.length < config.account.minUserIdLength
-    ? {
+        return config.account &&
+          config.account.minUserIdLength &&
+          userId.length < config.account.minUserIdLength
+          ? {
+              available: false,
+            }
+          : config.account &&
+            config.account.maxUserIdLength &&
+            userId.length > config.account.maxUserIdLength
+          ? {
+              available: false,
+            }
+          : await (async () => {
+              const pool = getPool();
+              const params = new pg.Params({ id: userId });
+
+              const { rows } = await pool.query(
+                `SELECT id FROM "user" WHERE id=${params.id("id")}`,
+                params.values()
+              );
+
+              return {
+                available: rows.length === 0,
+              };
+            })();
+      })()
+    : {
         available: false,
-      }
-    : config.account &&
-      config.account.maxUserIdLength &&
-      userId.length > config.account.maxUserIdLength
-    ? {
-        available: false,
-      }
-    : await (async () => {
-        const pool = getPool();
-        const params = new pg.Params({ id: userId });
-
-        const { rows } = await pool.query(
-          `SELECT id FROM "user" WHERE id=${params.id("id")}`,
-          params.values()
-        );
-
-        return {
-          available: rows.length === 0,
-        };
-      })();
+      };
 }
 
 export type GetUserIdResult =
@@ -91,45 +97,52 @@ export async function createUser(
   providerUserId: string,
   provider: string
 ): Promise<CreateUserResult> {
-  const config = configModule.get();
+  return userId && providerUserId && provider
+    ? await (async () => {
+        const config = configModule.get();
 
-  return config.account &&
-    config.account.minUserIdLength &&
-    userId.length < config.account.minUserIdLength
-    ? {
-        created: false as false,
-        reason:
-          "UserId should be at least ${config.account.minLength} characters long.",
-      }
-    : config.account &&
-      config.account.maxUserIdLength &&
-      userId.length > config.account.maxUserIdLength
-    ? {
-        created: false as false,
-        reason:
-          "UserId should be at most ${config.account.maxLength} characters long.",
-      }
-    : await (async () => {
-        const getUserIdResult = await getUserId(providerUserId, provider);
-        return getUserIdResult.isValidUser
-          ? { created: false as false, reason: "User already exists." }
+        return config.account &&
+          config.account.minUserIdLength &&
+          userId.length < config.account.minUserIdLength
+          ? {
+              created: false as false,
+              reason:
+                "UserId should be at least ${config.account.minLength} characters long.",
+            }
+          : config.account &&
+            config.account.maxUserIdLength &&
+            userId.length > config.account.maxUserIdLength
+          ? {
+              created: false as false,
+              reason:
+                "UserId should be at most ${config.account.maxLength} characters long.",
+            }
           : await (async () => {
-              const txResult = await withTransaction((client) =>
-                insertUserIntoDb(userId, providerUserId, provider, client)
-              );
+              const getUserIdResult = await getUserId(providerUserId, provider);
+              return getUserIdResult.isValidUser
+                ? { created: false as false, reason: "User already exists." }
+                : await (async () => {
+                    const txResult = await withTransaction((client) =>
+                      insertUserIntoDb(userId, providerUserId, provider, client)
+                    );
 
-              return txResult.success
-                ? {
-                    created: true as true,
-                    jwt: sign({ userId, providerUserId, provider }),
-                    tokens: { userId, providerUserId, provider },
-                  }
-                : {
-                    created: false as false,
-                    reason: "Could not create the new user.",
-                  };
+                    return txResult.success
+                      ? {
+                          created: true as true,
+                          jwt: sign({ userId, providerUserId, provider }),
+                          tokens: { userId, providerUserId, provider },
+                        }
+                      : {
+                          created: false as false,
+                          reason: "Could not create the new user.",
+                        };
+                  })();
             })();
-      })();
+      })()
+    : {
+        created: false as false,
+        reason: "Missing parameters.",
+      };
 }
 
 export async function insertUserIntoDb(
