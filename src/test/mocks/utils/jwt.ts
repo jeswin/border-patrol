@@ -1,5 +1,3 @@
-import * as jwtModule from "../../../utils/jwt";
-
 export function verify() {
   return {
     valid: true,
