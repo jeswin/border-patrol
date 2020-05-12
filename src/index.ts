@@ -96,13 +96,15 @@ if (require.main === module) {
     console.log(packageJson.version);
   } else {
     if (!argv.p) {
-      throw new Error("The port should be specified with the -p option.");
+      console.log("The port should be specified with the -p option.");
+      process.exit(1);
     }
 
     if (!argv.c) {
-      throw new Error(
+      console.log(
         "The configuration directory should be specified with the -c option."
       );
+      process.exit(1);
     }
 
     const configDir = argv.c;
