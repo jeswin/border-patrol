@@ -30,10 +30,10 @@ const argv = yargs.options({
 }).argv;
 
 export async function startApp(port: number, configDir: string) {
-  const oauthConfig = require(join(configDir, "oauth.js"));
+  const appConfig: IAppConfig = require(join(configDir, "app.js"));
   const dbConfig = require(join(configDir, "pg.js"));
   const jwtConfig: IJwtConfig = require(join(configDir, "jwt.js"));
-  const appConfig: IAppConfig = require(join(configDir, "app.js"));
+  const oauthConfig = require(join(configDir, "oauth.js"));
 
   // Init utils
   db.init(dbConfig);
