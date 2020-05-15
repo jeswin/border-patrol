@@ -11,6 +11,10 @@ export function init(c: IJwtConfig) {
   }
 }
 
+export function getConfig(): IJwtConfig {
+  return config;
+}
+
 export function sign(payload: any) {
   return jwt.sign(payload, config.privateKey, config.signOptions);
 }
