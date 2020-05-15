@@ -18,3 +18,16 @@ export interface IJwtConfig {
   privateKey: string;
   signOptions: object;
 }
+
+export interface IOAuthConfig {
+  defaults: {
+    protocol: "http";
+    host: string;
+    transport: "session";
+    state: true;
+  };
+  github: {
+    key: string;
+    secret: string;
+  };
+}

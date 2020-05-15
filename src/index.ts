@@ -11,13 +11,17 @@ import { join } from "path";
 import { handleProviderCallback } from "./api/oauth";
 import * as db from "./db";
 import * as jwt from "./utils/jwt";
-import * as config from "./config";
 import { authenticate } from "./api/authenticate";
 import { IAppConfig, IJwtConfig } from "./types";
 import { getUserIdAvailability } from "./api/userIds";
 import { createUser } from "./api/users";
 import { createKeyValuePair } from "./api/me";
 import { login } from "./api/localAccount";
+
+import * as config from "./config";
+import * as jwtConfig from "./config/jwt";
+import * as oauthConfig from "./config/oauth";
+import * as pgConfig from "./config/pg";
 
 const packageJson = require("../package.json");
 
@@ -30,26 +34,30 @@ const argv = yargs.options({
 }).argv;
 
 export async function startApp(port: number, configDir: string) {
-  const appConfig: IAppConfig = require(join(configDir, "app.js"));
-  const dbConfig = require(join(configDir, "pg.js"));
-  const jwtConfig: IJwtConfig = require(join(configDir, "jwt.js"));
-  const oauthConfig = require(join(configDir, "oauth.js"));
+  const appSettings: IAppConfig = require(join(configDir, "app.js"));
+  const dbSettings = require(join(configDir, "pg.js"));
+  const jwtSettings: IJwtConfig = require(join(configDir, "jwt.js"));
+  const oauthSettings = require(join(configDir, "oauth.js"));
 
-  // Init utils
-  db.init(dbConfig);
-  jwt.init(jwtConfig);
-  config.init(appConfig);
+  // init configuration
+  config.init(appSettings);
+  jwtConfig.init(jwtSettings);
+  pgConfig.init(dbSettings);
+  oauthConfig.init(oauthSettings);
+
+  // init the db library
+  db.init();
 
   // Set up routes
   const router = new Router();
 
   /* Entry point for all auth services */
-  appConfig.enabledProviders.forEach((service) => {
+  appSettings.enabledProviders.forEach((service) => {
     router.get(`/authenticate/${service}`, authenticate(service));
   });
 
   /* OAuth services need a callback */
-  appConfig.enabledProviders.forEach((oauthService) =>
+  appSettings.enabledProviders.forEach((oauthService) =>
     router.get(
       `/oauth/token/${oauthService}`,
       async (ctx: Router.RouterContext) =>
@@ -66,22 +74,22 @@ export async function startApp(port: number, configDir: string) {
   /* Add a key value pair for a user */
   router.post(`/me/kvstore`, createKeyValuePair);
 
-  if (appConfig.enablePasswordAuth) {
+  if (appSettings.enablePasswordAuth) {
     router.post("/login", login);
   }
 
-  for (const key in oauthConfig) {
+  for (const key in oauthSettings) {
     if (key !== "defaults") {
-      oauthConfig[key].callback = `/oauth/token/${key}`;
+      oauthSettings[key].callback = `/oauth/token/${key}`;
     }
   }
 
   // Start app
   var app = new Koa();
   app.use(bodyParser());
-  app.keys = appConfig.sessionKeys.split(",");
+  app.keys = appSettings.sessionKeys.split(",");
   app.use(session(app));
-  app.use(mount(grant(oauthConfig)));
+  app.use(mount(grant(oauthSettings)));
   app.use(router.routes());
   app.use(router.allowedMethods());
 

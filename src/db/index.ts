@@ -1,27 +1,23 @@
 import * as pg from "pg";
 import * as psychopiggy from "psychopiggy";
+import * as pgConfig from "../config/pg";
 
-let config: psychopiggy.IDbConfig;
+export async function init() {
+  let config: psychopiggy.IDbConfig = pgConfig.get();
 
-export async function init(c: psychopiggy.IDbConfig) {
-  if (!config) {
-    psychopiggy.createPool(c);
-    config = c;
+  if (config) {
+    psychopiggy.createPool(config);
   } else {
-    throw "DB config has already been initialized.";
+    throw "Cannot find database configuration.";
   }
 }
 
-export function getConfig() {
-  return config;
-}
-
 export function getPool() {
-  return psychopiggy.getPool(config);
+  return psychopiggy.getPool(pgConfig.get());
 }
 
 export async function withTransaction<T>(
   fn: (client: pg.PoolClient) => Promise<T>
 ) {
-  return await psychopiggy.withTransaction(fn, config);
+  return await psychopiggy.withTransaction(fn, pgConfig.get());
 }

@@ -1,21 +1,8 @@
 import jwt = require("jsonwebtoken");
-import { IJwtConfig } from "../types";
-
-let config: IJwtConfig;
-
-export function init(c: IJwtConfig) {
-  if (!config) {
-    config = c;
-  } else {
-    throw "JWT config has already been initialized.";
-  }
-}
-
-export function getConfig(): IJwtConfig {
-  return config;
-}
+import * as jwtConfig from "../config/jwt";
 
 export function sign(payload: any) {
+  const config = jwtConfig.get();
   return jwt.sign(payload, config.privateKey, config.signOptions);
 }
 
@@ -35,6 +22,7 @@ export type IVerifiedValidJwt = {
 export type IVerifiedJwt = IVerifiedInvalidJwt | IVerifiedValidJwt;
 
 export function verify(token: string): IVerifiedJwt {
+  const config = jwtConfig.get();
   try {
     return {
       valid: true,
