@@ -1,18 +1,21 @@
 import urlModule = require("url");
 import { IRouterContext } from "koa-router";
-import * as config from "../config";
+import * as configModule from "../config";
 import { setTempCookie } from "../utils/cookie";
 
-const oauthServices = ["github"];
-
 function isInDomain(url: string) {
+  const config = configModule.get();
+
   const hostname = urlModule.parse(url).host;
-  const domain = config.get().domain;
-  return hostname && (hostname === domain || hostname.endsWith(`.${domain}`));
+  return (
+    hostname &&
+    (hostname === config.domain || hostname.endsWith(`.${config.domain}`))
+  );
 }
 
 export function authenticate(service: string) {
-  const domain = config.get().domain;
+  const config = configModule.get();
+  
   return async (ctx: IRouterContext) => {
     const successRedirect = ctx.query.success;
     const newuserRedirect = ctx.query.newuser;
@@ -36,16 +39,8 @@ export function authenticate(service: string) {
       ? ((ctx.status = 400),
         (ctx.body =
           "New user redirect must be a url within the application's domain."))
-      : (setTempCookie(
-          ctx,
-          "border-patrol-success-redirect",
-          successRedirect
-        ),
-        setTempCookie(
-          ctx,
-          "border-patrol-newuser-redirect",
-          newuserRedirect
-        ),
+      : (setTempCookie(ctx, "border-patrol-success-redirect", successRedirect),
+        setTempCookie(ctx, "border-patrol-newuser-redirect", newuserRedirect),
         ctx.redirect(`/connect/${service}`));
   };
 }

@@ -89,10 +89,6 @@ export default function run(
               const cookies = (response.header["set-cookie"] as Array<
                 string
               >).flatMap((x) => x.split(";"));
-              cookies.should.containEql("border-patrol-user-id=some_userid");
-              cookies.should.containEql(
-                "border-patrol-domain=test.example.com"
-              );
               response.text.should.equal(
                 `Redirecting to <a href="http://test.example.com/newuser">http://test.example.com/newuser</a>.`
               );
@@ -122,11 +118,8 @@ export default function run(
                 string
               >).flatMap((x) => x.split(";"));
               cookies.should.containEql("border-patrol-jwt=some_other_jwt");
-              cookies.should.containEql(
-                "border-patrol-domain=test.example.com"
-              );
               response.text.should.equal(
-                `{"border-patrol-jwt":"some_other_jwt","border-patrol-user-id":"jeswin","border-patrol-domain":"test.example.com"}`
+                `{"border-patrol-jwt":"some_other_jwt"}`
               );
             }
           );

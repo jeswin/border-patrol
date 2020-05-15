@@ -1,5 +1,6 @@
 import { IRouterContext } from "koa-router";
 import * as jwtModule from "../utils/jwt";
+import * as configModule from "../config";
 
 export async function ensureJwt(
   ctx: IRouterContext,
@@ -8,7 +9,8 @@ export async function ensureJwt(
     args: { jwt: string }
   ) => Promise<any>
 ) {
-  const jwt: string = ctx.headers["border-patrol-jwt"];
+  const config = configModule.get();
+  const jwt: string = ctx.headers[config.cookieName];
 
   return !jwt
     ? /* JWT was missing */

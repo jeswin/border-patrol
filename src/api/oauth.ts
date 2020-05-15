@@ -10,7 +10,6 @@ export async function handleProviderCallback(
   provider: string
 ) {
   const config = configModule.get();
-
   const successRedirectUrl = ctx.cookies.get("border-patrol-success-redirect");
   const newuserRedirectUrl = ctx.cookies.get("border-patrol-newuser-redirect");
 
@@ -27,7 +26,6 @@ export async function handleProviderCallback(
       (ctx.body =
         "Invalid request. border-patrol-newuser-redirect was missing in cookie."))
     : await (async () => {
-        const domain = configModule.get().domain;
         const grant = (ctx as any).session.grant;
 
         const result =
@@ -38,9 +36,7 @@ export async function handleProviderCallback(
             : error("Invalid oauth service selected.");
 
         if (result.success) {
-          setCookie(ctx, "border-patrol-jwt", result.jwt);
-          setCookie(ctx, "border-patrol-user-id", result.tokens.userId);
-          setCookie(ctx, "border-patrol-domain", config.domain);
+          setCookie(ctx, config.cookieName, result.jwt);
           ctx.redirect(
             result.isValidUser ? successRedirectUrl : newuserRedirectUrl
           );

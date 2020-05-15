@@ -4,17 +4,13 @@ import * as configModule from "../config";
 import { setCookie } from "../utils/cookie";
 import { ensureJwt } from "./authUtils";
 
+
 export async function createUser(ctx: IRouterContext) {
   const config = configModule.get();
-
   function onSuccess(jwt: string, userId: string) {
-    setCookie(ctx, "border-patrol-jwt", jwt);
-    setCookie(ctx, "border-patrol-user-id", userId);
-    setCookie(ctx, "border-patrol-domain", config.domain);
+    setCookie(ctx, config.cookieName, jwt);
     ctx.body = {
-      "border-patrol-jwt": jwt,
-      "border-patrol-user-id": userId,
-      "border-patrol-domain": config.domain,
+      [config.cookieName]: jwt,
     };
   }
 

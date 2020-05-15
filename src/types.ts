@@ -2,7 +2,6 @@ export interface IAppConfig {
   domain: string;
   sessionKeys: string;
   cookies: {
-    httpOnly: boolean;
     maxAge: number;
   };
   enablePasswordAuth: boolean;
@@ -11,6 +10,7 @@ export interface IAppConfig {
     minUserIdLength?: number;
     maxUserIdLength?: number;
   };
+  cookieName: string;
 }
 
 export interface IJwtConfig {

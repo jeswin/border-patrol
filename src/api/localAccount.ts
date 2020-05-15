@@ -6,7 +6,6 @@ import { setCookie } from "../utils/cookie";
 
 export async function login(ctx: IRouterContext) {
   const config = configModule.get();
-
   const { userId, password } = ctx.body;
   const isValidLogin = await authenticate(userId, password);
 
@@ -18,9 +17,7 @@ export async function login(ctx: IRouterContext) {
     };
     const jwt = sign(tokenData);
 
-    setCookie(ctx, "border-patrol-jwt", jwt);
-    setCookie(ctx, "border-patrol-user-id", userId);
-    setCookie(ctx, "border-patrol-domain", config.domain);
+    setCookie(ctx, config.cookieName, jwt);
 
     ctx.body = {
       success: true,
