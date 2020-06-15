@@ -1,15 +1,13 @@
-import request = require("request");
 import { promisify } from "util";
-
-const httpGet = promisify(request.get);
+import got from "got";
 
 export async function getUser(accessToken: string) {
-  const response = (await httpGet({
-    url: `https://api.github.com/user?access_token=${accessToken}`,
-    headers: { "user-agent": "node.js" },
-  })) as { body: string };
+  const response = await got(
+    `https://api.github.com/user?access_token=${accessToken}`,
+    {
+      headers: { "user-agent": "node.js" },
+    }
+  );
 
-  const data = JSON.parse(response.body);
-
-  return data;
+  return JSON.parse(response.body);
 }

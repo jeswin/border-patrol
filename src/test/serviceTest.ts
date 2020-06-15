@@ -1,6 +1,5 @@
 import pg = require("pg");
 import { startApp } from "..";
-import request = require("supertest");
 import { IDbConfig } from "psychopiggy";
 
 import * as oauthAPIModule from "../api/oauth";
@@ -15,6 +14,11 @@ import * as jwtModule from "../utils/jwt";
 import * as jwtMocks from "./mocks/utils/jwt";
 
 import monkeyPatch from "./monkeyPatch";
+import got from "got";
+import { promisify } from "util";
+import should = require("should");
+
+const { Cookie, CookieJar } = require("tough-cookie");
 
 let app: any;
 
@@ -25,10 +29,12 @@ export default function run(
 ) {
   describe("service", async () => {
     let app: any;
+    let port: number = 0;
 
     before(async () => {
       const service = await startApp(port, configDir);
       app = service.listen();
+      port = app.address().port;
     });
 
     it("says userid is unavailable", async () => {
@@ -38,34 +44,42 @@ export default function run(
           (id, name, timestamp)
           VALUES('jeswin', 'Jeswin Kumar', ${Date.now()});
       `);
-      const response = await request(app).get("/user-ids/jeswin");
-      response.status.should.equal(200);
-      JSON.parse(response.text).should.deepEqual({
+      const response = await got(
+        `http://test.example.com:${port}/user-ids/jeswin`
+      );
+      response.statusCode.should.equal(200);
+      JSON.parse(response.body).should.deepEqual({
         available: false,
       });
     });
 
     it("says available userid is available", async () => {
-      const response = await request(app).get("/user-ids/alice");
-      response.status.should.equal(200);
-      JSON.parse(response.text).should.deepEqual({
+      const response = await got(
+        `http://test.example.com:${port}/user-ids/alice`
+      );
+      response.statusCode.should.equal(200);
+      JSON.parse(response.body).should.deepEqual({
         available: true,
       });
     });
 
     it("redirects to connect", async () => {
-      const response = await request(app).get(
-        "/authenticate/github?success=http://test.example.com/success&newuser=http://test.example.com/newuser"
+      const response = await got(
+        `http://test.example.com:${port}/authenticate/github?success=http://test.example.com/success&newuser=http://test.example.com/newuser`,
+        { followRedirect: false }
       );
-      response.header["set-cookie"].should.containEql(
-        "border-patrol-success-redirect=http://test.example.com/success; path=/; domain=test.example.com"
-      );
-      response.header["set-cookie"].should.containEql(
-        "border-patrol-newuser-redirect=http://test.example.com/newuser; path=/; domain=test.example.com"
-      );
-      response.text.should.equal(
-        `Redirecting to <a href="/connect/github">/connect/github</a>.`
-      );
+      response.headers.should.not.be.empty();
+      if (response.headers) {
+        (response.headers as any)["set-cookie"].should.containEql(
+          "border-patrol-success-redirect=http://test.example.com/success; path=/; domain=test.example.com"
+        );
+        (response.headers as any)["set-cookie"].should.containEql(
+          "border-patrol-newuser-redirect=http://test.example.com/newuser; path=/; domain=test.example.com"
+        );
+        response.body.should.equal(
+          `Redirecting to <a href="/connect/github">/connect/github</a>.`
+        );
+      }
     });
 
     it("gets tokens", async () => {
@@ -79,17 +93,39 @@ export default function run(
             githubModule.getJwtAndTokensWithGrant,
             githubMocks.getJwtAndTokensWithGrant,
             async () => {
-              const response = await request(app)
-                .get("/oauth/token/github")
-                .set("Cookie", [
-                  "border-patrol-success-redirect=http://test.example.com/success",
-                  "border-patrol-newuser-redirect=http://test.example.com/newuser",
-                ]);
+              const cookieJar = new CookieJar();
+              const setCookie = promisify(cookieJar.setCookie.bind(cookieJar));
 
-              const cookies = (response.header["set-cookie"] as Array<
-                string
-              >).flatMap((x) => x.split(";"));
-              response.text.should.equal(
+              await setCookie(
+                "border-patrol-success-redirect=http://test.example.com/success",
+                "http://test.example.com"
+              );
+
+              await setCookie(
+                "border-patrol-newuser-redirect=http://test.example.com/newuser",
+                "http://test.example.com"
+              );
+
+              const response = await got(
+                `http://test.example.com:${port}/oauth/token/github`,
+                { cookieJar, followRedirect: false }
+              );
+
+              response.headers.should.not.be.empty();
+
+              const cookies: any[] =
+                response.headers["set-cookie"] instanceof Array
+                  ? response.headers["set-cookie"].map(Cookie.parse)
+                  : [Cookie.parse(response.headers["set-cookie"])];
+
+              const jwtCookie = cookies.find(
+                (x: any) => x.key === "border-patrol-jwt"
+              );
+
+              should.exist(jwtCookie, "border-patrol-jwt cookie is missing.");
+              jwtCookie.value.should.equal("some_jwt");
+
+              response.body.should.equal(
                 `Redirecting to <a href="http://test.example.com/newuser">http://test.example.com/newuser</a>.`
               );
             }
@@ -109,16 +145,25 @@ export default function run(
             userModule.createUser,
             userMocks.createUser,
             async () => {
-              const response = await request(app)
-                .post("/users")
-                .send({ userId: "jeswin" })
-                .set("border-patrol-jwt", "some_jwt");
+              const response = await got(`http://localhost:${port}/users`, {
+                method: "POST",
+                body: JSON.stringify({ userId: "jeswin" }),
+                headers: { "border-patrol-jwt": "some_jwt" },
+              });
 
-              const cookies = (response.header["set-cookie"] as Array<
-                string
-              >).flatMap((x) => x.split(";"));
-              cookies.should.containEql("border-patrol-jwt=some_other_jwt");
-              response.text.should.equal(
+              const cookies: any[] =
+                response.headers["set-cookie"] instanceof Array
+                  ? response.headers["set-cookie"].map(Cookie.parse)
+                  : [Cookie.parse(response.headers["set-cookie"])];
+
+              const jwtCookie = cookies.find(
+                (x: any) => x.key === "border-patrol-jwt"
+              );
+
+              should.exist(jwtCookie, "border-patrol-jwt cookie is missing.");
+              jwtCookie.value.should.equal("some_other_jwt");
+
+              response.body.should.equal(
                 `{"border-patrol-jwt":"some_other_jwt"}`
               );
             }
@@ -138,10 +183,11 @@ export default function run(
             kvstoreModule.createKeyValuePair,
             kvstoreMocks.createKeyValuePair,
             async () => {
-              const response = await request(app)
-                .post("/me/kvstore")
-                .set("border-patrol-jwt", "some_jwt");
-              JSON.parse(response.text).should.deepEqual({ success: true });
+              const response = await got(
+                `http://localhost:${port}/me/kvstore`,
+                { method: "POST", headers: { "border-patrol-jwt": "some_jwt" } }
+              );
+              JSON.parse(response.body).should.deepEqual({ success: true });
             }
           );
         }
