@@ -119,6 +119,6 @@ if (require.main === module) {
     const port = argv.p;
 
     startApp(port, configDir);
-    console.log(`listening on port ${port}`);
+    console.log(`border-patrol listening on port ${port}`);
   }
 }
