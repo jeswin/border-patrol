@@ -77,7 +77,7 @@ export async function getJwtAndTokensByProviderIdentity(
         const tokensForUser = await getTokensForUser(userId);
         return {
           isValidUser: true,
-          jwt: sign(tokensForUser),
+          jwt: sign({ ...tokensForUser, providerUserId, provider }),
           tokens: { ...tokensForUser, providerUserId, provider }
         };
       })()
