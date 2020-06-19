@@ -10,4 +10,5 @@ module.exports = {
     minUserIdLength: 4,
     maxUserIdLength: 8,
   },
+  adminKey: "secret"
 };

@@ -17,6 +17,8 @@ import monkeyPatch from "./monkeyPatch";
 import got from "got";
 import { promisify } from "util";
 import should = require("should");
+import { writeSampleData, selectAndMatchRows } from "./utils/db";
+import { getResponse } from "./utils/http";
 
 const { Cookie, CookieJar } = require("tough-cookie");
 
@@ -41,8 +43,8 @@ export default function run(
       const pool = new pg.Pool(dbConfig);
       await pool.query(`
         INSERT INTO "user"
-          (id, name, timestamp)
-          VALUES('jeswin', 'Jeswin Kumar', ${Date.now()});
+          (id, name, status, timestamp)
+          VALUES('jeswin', 'Jeswin Kumar', 'active', ${Date.now()});
       `);
       const response = await got(
         `http://test.example.com:${port}/user-ids/jeswin`
@@ -145,11 +147,14 @@ export default function run(
             userModule.createUser,
             userMocks.createUser,
             async () => {
-              const response = await got(`http://localhost:${port}/users`, {
-                method: "POST",
-                body: JSON.stringify({ userId: "jeswin" }),
-                headers: { "border-patrol-jwt": "some_jwt" },
-              });
+              const response = await got(
+                `http://test.example.com:${port}/users`,
+                {
+                  method: "POST",
+                  body: JSON.stringify({ userId: "jeswin" }),
+                  headers: { "border-patrol-jwt": "some_jwt" },
+                }
+              );
 
               const cookies: any[] =
                 response.headers["set-cookie"] instanceof Array
@@ -172,6 +177,62 @@ export default function run(
       );
     });
 
+    it("deletes a user", async () => {
+      await writeSampleData(dbConfig);
+      const response = await got(
+        `http://test.example.com:${port}/admin/users/jeswin`,
+        {
+          method: "DELETE",
+          headers: {
+            "border-patrol-admin-key": "secret",
+          },
+        }
+      );
+
+      response.statusCode.should.equal(200);
+      JSON.parse(response.body).should.deepEqual({
+        success: true,
+      });
+
+      // Make sure the data is gone.
+      await selectAndMatchRows(
+        `SELECT * FROM "user"`,
+        1,
+        [
+          {
+            index: 0,
+            values: {
+              id: "eddie",
+              name: "Eddie Noname",
+              status: "active",
+            },
+          },
+        ],
+        dbConfig
+      );
+    });
+
+    it("does not delete a user if adminKey is incorrect", async () => {
+      await writeSampleData(dbConfig);
+
+      const promisedResponse = got(
+        `http://test.example.com:${port}/admin/users/jeswin`,
+        {
+          method: "DELETE",
+          headers: {
+            "border-patrol-admin-key": "something",
+          },
+        }
+      );
+
+      const response = await getResponse(promisedResponse);
+      response.statusCode.should.equal(401);
+      response.body.should.equal("Unauthorized.")
+
+      // Make sure the data is still there.
+      await selectAndMatchRows(`SELECT * FROM "user"`, 2, [], dbConfig);
+    });
+
     it("adds a key value pair", async () => {
       await monkeyPatch(
         jwtModule,
@@ -184,7 +245,7 @@ export default function run(
             kvstoreMocks.createKeyValuePair,
             async () => {
               const response = await got(
-                `http://localhost:${port}/me/kvstore`,
+                `http://test.example.com:${port}/me/kvstore`,
                 { method: "POST", headers: { "border-patrol-jwt": "some_jwt" } }
               );
               JSON.parse(response.body).should.deepEqual({ success: true });

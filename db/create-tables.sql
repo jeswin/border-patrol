@@ -1,6 +1,7 @@
 CREATE TABLE "user" (
     "id" character varying (64) NOT NULL,
     "name" character varying (128) NOT NULL,
+    "status" character varying (32) NOT NULL,
     "timestamp" bigint NOT NULL,
     CONSTRAINT "user_pkey" 
         PRIMARY KEY ("id"));

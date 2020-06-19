@@ -14,7 +14,7 @@ import * as jwt from "./utils/jwt";
 import { authenticate } from "./api/authenticate";
 import { IAppConfig, IJwtConfig } from "./types";
 import { getUserIdAvailability } from "./api/userIds";
-import { createUser } from "./api/users";
+import { createUser, adminDeleteUser } from "./api/users";
 import { createKeyValuePair } from "./api/me";
 import { login } from "./api/localAccount";
 
@@ -70,6 +70,9 @@ export async function startApp(port: number, configDir: string) {
 
   /* Create a new user. */
   router.post(`/users`, createUser);
+
+  /* Delete a user - admin only */
+  router.del("/admin/users/:userId", adminDeleteUser)
 
   /* Add a key value pair for a user */
   router.post(`/me/kvstore`, createKeyValuePair);

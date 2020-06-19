@@ -11,6 +11,7 @@ export interface IAppConfig {
     maxUserIdLength?: number;
   };
   cookieName: string;
+  adminKey?: string;
 }
 
 export interface IJwtConfig {

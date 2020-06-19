@@ -145,6 +145,46 @@ export async function createUser(
       };
 }
 
+export async function deleteUser(userId: string) {
+  const pool = getPool();
+
+  const params = new pg.Params({
+    user_id: userId,
+  });
+
+  await withTransaction(async (client) => {
+    await client.query(
+      `DELETE FROM "local_user_auth" WHERE user_id=${params.id("user_id")}`,
+      params.values()
+    );
+
+    await client.query(
+      `DELETE FROM "provider_user" WHERE user_id=${params.id("user_id")}`,
+      params.values()
+    );
+
+    await client.query(
+      `DELETE FROM "user_token" WHERE user_id=${params.id("user_id")}`,
+      params.values()
+    );
+
+    await client.query(
+      `DELETE FROM "user_role" WHERE user_id=${params.id("user_id")}`,
+      params.values()
+    );
+
+    await client.query(
+      `DELETE FROM "kvstore" WHERE user_id=${params.id("user_id")}`,
+      params.values()
+    );
+
+    await client.query(
+      `DELETE FROM "user" WHERE id=${params.id("user_id")}`,
+      params.values()
+    );
+  });
+}
+
 export async function insertUserIntoDb(
   userId: string,
   providerUserId: string,
@@ -154,6 +194,7 @@ export async function insertUserIntoDb(
   const insertUserParams = new pg.Params({
     id: userId,
     name: userId,
+    status: "active",
     timestamp: Date.now(),
   });
 
@@ -173,6 +214,4 @@ export async function insertUserIntoDb(
     `INSERT INTO "provider_user" (${insertProviderUserParams.columns()}) VALUES (${insertProviderUserParams.ids()})`,
     insertProviderUserParams.values()
   );
-
-  return true;
 }

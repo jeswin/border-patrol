@@ -16,7 +16,9 @@ export async function authenticate(
   const params = new pg.Params({ user_id: userId });
 
   const { rows } = await pool.query(
-    `SELECT user_id, salt, hash FROM "user" WHERE id=${params.id("user_id")}`,
+    `SELECT user_id, salt, hash FROM "user" WHERE id=${params.id(
+      "user_id"
+    )} AND status='active'`,
     params.values()
   );
 
@@ -52,8 +54,6 @@ export async function createLocalUser(userId: string, password: string) {
       `INSERT INTO "local_user_auth" (${insertAuthParams.columns()}) VALUES (${insertAuthParams.ids()})`,
       insertAuthParams.values()
     );
-
-    return true;
   });
 
   const tokenData = {
