@@ -1,6 +1,5 @@
 import { IGetTokensResult } from "../user/token";
 
 export type IGetJwtAndTokensResult =
-  | { success: false }
+  | { success: false, reason: string }
   | ({ success: true } & IGetTokensResult);
-1

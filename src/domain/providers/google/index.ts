@@ -9,8 +9,8 @@ export async function getJwtAndTokensWithGrant(
 
   // We don't verify the token because we trust the secure link to Google
   // But revisit this later.
-  const decodedToken = decode(idToken) as IJwt;  
-  
+  const decodedToken = decode(idToken) as IJwt;
+
   const userId = decodedToken.email;
 
   return userId
@@ -20,10 +20,10 @@ export async function getJwtAndTokensWithGrant(
           "google"
         );
         const result = {
-          success: true,
+          success: true as true,
           ...jwtAndTokens,
         };
         return result;
       })()
-    : { success: false };
+    : { success: false, reason: "Did not get email id from Google." };
 }

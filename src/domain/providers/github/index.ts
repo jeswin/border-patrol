@@ -16,9 +16,9 @@ export async function getJwtAndTokensWithGrant(
           "github"
         );
         return {
-          success: true,
+          success: true as true,
           ...jwtAndTokens,
         };
       })()
-    : { success: false };
+    : { success: false, reason: "Did not get user id from github." };
 }
