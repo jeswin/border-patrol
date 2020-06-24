@@ -101,21 +101,18 @@ export async function createUser(
     ? await (async () => {
         const config = configModule.get();
 
-        return config.account &&
-          config.account.minUserIdLength &&
-          userId.length < config.account.minUserIdLength
+        const minUserIdLength = config.account?.minUserIdLength;
+        const maxUserIdLength = config.account?.maxUserIdLength;
+        
+        return minUserIdLength && userId.length < minUserIdLength
           ? {
               created: false as false,
-              reason:
-                "UserId should be at least ${config.account.minLength} characters long.",
+              reason: `UserId should be at least ${minUserIdLength} characters long.`,
             }
-          : config.account &&
-            config.account.maxUserIdLength &&
-            userId.length > config.account.maxUserIdLength
+          : maxUserIdLength && userId.length > maxUserIdLength
           ? {
               created: false as false,
-              reason:
-                "UserId should be at most ${config.account.maxLength} characters long.",
+              reason: `UserId should be at most ${maxUserIdLength} characters long.`,
             }
           : await (async () => {
               const getUserIdResult = await getUserId(providerUserId, provider);

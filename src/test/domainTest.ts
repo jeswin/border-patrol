@@ -159,6 +159,24 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       });
     });
 
+    it("user.createUser() verifies min userId length", async () => {
+      await writeSampleData(dbConfig);
+      const result = await userModule.createUser("yo", "jeswin", "github");
+      result.should.deepEqual({
+        created: false,
+        reason: "UserId should be at least 4 characters long.",
+      });
+    });
+
+    it("user.createUser() verifies max userId length", async () => {
+      await writeSampleData(dbConfig);
+      const result = await userModule.createUser("thisisaverylongusername", "jeswin", "github");
+      result.should.deepEqual({
+        created: false,
+        reason: "UserId should be at most 12 characters long.",
+      });
+    });
+
     it("localAccount.createLocalUser() doesn't overwrite existing user", async () => {
       await writeSampleData(dbConfig);
       const result = await localAccountModule.createLocalUser(

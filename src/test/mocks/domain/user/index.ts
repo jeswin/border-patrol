@@ -11,4 +11,3 @@ export async function createUser(
     tokens: { userId: "jeswin" },
   } as userModule.CreateUserResult;
 }
-
