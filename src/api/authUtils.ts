@@ -16,7 +16,7 @@ export async function ensureJwt(
     ctx.status = 400;
     ctx.body = {
       success: false,
-      error: "Missing JWT token in request. Pass via cookies or in the header.",
+      error: "Missing JWT in request. Pass via cookies or in the header.",
     };
   } else {
     const result = jwtModule.verify(jwt);
@@ -24,7 +24,7 @@ export async function ensureJwt(
       ctx.status = 400;
       ctx.body = {
         success: false,
-        error: "Invalid JWT token.",
+        error: "Invalid JWT.",
       };
     } else {
       return await then(result, {
@@ -49,7 +49,7 @@ export async function ensureUserId(
       ctx.status = 400;
       ctx.body = {
         success: false,
-        error: "User id was not found in the JWT token.",
+        error: "User id was not found in the JWT.",
       };
     } else {
       return await then(userId, verifiedJwt, args);
