@@ -12,20 +12,26 @@ export async function ensureJwt(
   const config = configModule.get();
   const jwt: string = ctx.headers[config.cookieName];
 
-  return !jwt
-    ? /* JWT was missing */
-      ((ctx.status = 400),
-      (ctx.body =
-        "Missing JWT token in request. Pass via cookies or in the header."))
-    : await (async () => {
-        const result = jwtModule.verify(jwt);
-        return !result.valid
-          ? /* Invalid JWT */
-            ((ctx.status = 400), (ctx.body = "Invalid JWT token."))
-          : await then(result, {
-              jwt,
-            });
-      })();
+  if (!jwt) {
+    ctx.status = 400;
+    ctx.body = {
+      success: false,
+      error: "Missing JWT token in request. Pass via cookies or in the header.",
+    };
+  } else {
+    const result = jwtModule.verify(jwt);
+    if (!result.valid) {
+      ctx.status = 400;
+      ctx.body = {
+        success: false,
+        error: "Invalid JWT token.",
+      };
+    } else {
+      return await then(result, {
+        jwt,
+      });
+    }
+  }
 }
 
 export async function ensureUserId(
@@ -38,9 +44,15 @@ export async function ensureUserId(
 ) {
   return ensureJwt(ctx, async (verifiedJwt, args) => {
     const userId = verifiedJwt.value.userId;
-    return !userId
-      ? ((ctx.status = 400),
-        (ctx.body = "User id was not found in the JWT token."))
-      : await then(userId, verifiedJwt, args);
+
+    if (!userId) {
+      ctx.status = 400;
+      ctx.body = {
+        success: false,
+        error: "User id was not found in the JWT token.",
+      };
+    } else {
+      return await then(userId, verifiedJwt, args);
+    }
   });
 }

@@ -19,9 +19,13 @@ export async function createUser(ctx: IRouterContext) {
       result.value.providerUserId,
       result.value.provider
     );
-    return createUserResult.created
-      ? onSuccess(createUserResult.jwt, createUserResult.tokens.userId)
-      : ((ctx.status = 400), (ctx.body = createUserResult.reason));
+
+    if (createUserResult.created) {
+      onSuccess(createUserResult.jwt, createUserResult.tokens.userId);
+    } else {
+      ctx.status = 400;
+      ctx.body = createUserResult.reason;
+    }
   });
 }
 

@@ -17,31 +17,40 @@ export async function handleProviderCallback(
   clearCookie(ctx, "border-patrol-success-redirect");
   clearCookie(ctx, "border-patrol-newuser-redirect");
 
-  return !successRedirectUrl
-    ? ((ctx.status = 400),
-      (ctx.body =
-        "Invalid request. border-patrol-success-redirect was missing in cookie."))
-    : !newuserRedirectUrl
-    ? ((ctx.status = 400),
-      (ctx.body =
-        "Invalid request. border-patrol-newuser-redirect was missing in cookie."))
-    : await (async () => {
-        const grant = (ctx as any).session.grant;
+  if (!successRedirectUrl) {
+    ctx.body = 400;
+    ctx.body = {
+      success: false,
+      error:
+        "Invalid request. border-patrol-success-redirect was missing in cookie.",
+    };
+  } else if (!newuserRedirectUrl) {
+    ctx.status = 400;
+    ctx.body = {
+      success: false,
+      error:
+        "Invalid request. border-patrol-newuser-redirect was missing in cookie.",
+    };
+  } else {
+    const grant = (ctx as any).session.grant;
 
-        const result =
-          provider === "github"
-            ? await github.getJwtAndTokensWithGrant(grant)
-            : provider === "google"
-            ? await google.getJwtAndTokensWithGrant(grant)
-            : error("Invalid oauth service selected.");
+    const result =
+      provider === "github"
+        ? await github.getJwtAndTokensWithGrant(grant)
+        : provider === "google"
+        ? await google.getJwtAndTokensWithGrant(grant)
+        : error("Invalid oauth service selected.");
 
-        if (result.success) {
-          setCookie(ctx, config.cookieName, result.jwt);
-          ctx.redirect(
-            result.isValidUser ? successRedirectUrl : newuserRedirectUrl
-          );
-        } else {
-          ctx.body = "unimplemented";
-        }
-      })();
+    if (result.success) {
+      setCookie(ctx, config.cookieName, result.jwt);
+      ctx.redirect(
+        result.isValidUser ? successRedirectUrl : newuserRedirectUrl
+      );
+    } else {
+      ctx.body = {
+        success: false,
+        error: "Unimplemented.",
+      };
+    }
+  }
 }
