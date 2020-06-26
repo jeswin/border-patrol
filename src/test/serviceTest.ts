@@ -51,6 +51,7 @@ export default function run(
       );
       response.statusCode.should.equal(200);
       JSON.parse(response.body).should.deepEqual({
+        success: true,
         available: false,
       });
     });
@@ -61,6 +62,7 @@ export default function run(
       );
       response.statusCode.should.equal(200);
       JSON.parse(response.body).should.deepEqual({
+        success: true,
         available: true,
       });
     });
@@ -168,9 +170,10 @@ export default function run(
               should.exist(jwtCookie, "border-patrol-jwt cookie is missing.");
               jwtCookie.value.should.equal("some_other_jwt");
 
-              response.body.should.equal(
-                `{"border-patrol-jwt":"some_other_jwt"}`
-              );
+              JSON.parse(response.body).should.deepEqual({
+                success: true,
+                "border-patrol-jwt": "some_other_jwt",
+              });
             }
           );
         }
@@ -227,7 +230,10 @@ export default function run(
 
       const response = await getResponse(promisedResponse);
       response.statusCode.should.equal(401);
-      response.body.should.equal("Unauthorized.")
+      JSON.parse(response.body).should.deepEqual({
+        success: false,
+        error: "Unauthorized.",
+      });
 
       // Make sure the data is still there.
       await selectAndMatchRows(`SELECT * FROM "user"`, 2, [], dbConfig);

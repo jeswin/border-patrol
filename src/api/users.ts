@@ -9,6 +9,7 @@ export async function createUser(ctx: IRouterContext) {
   function onSuccess(jwt: string, userId: string) {
     setCookie(ctx, config.cookieName, jwt);
     ctx.body = {
+      success: true,
       [config.cookieName]: jwt,
     };
   }
@@ -24,7 +25,10 @@ export async function createUser(ctx: IRouterContext) {
       onSuccess(createUserResult.jwt, createUserResult.tokens.userId);
     } else {
       ctx.status = 400;
-      ctx.body = createUserResult.reason;
+      ctx.body = {
+        success: false,
+        error: createUserResult.reason,
+      };
     }
   });
 }
@@ -43,6 +47,9 @@ export async function adminDeleteUser(ctx: IRouterContext) {
     };
   } else {
     ctx.status = 401;
-    ctx.body = "Unauthorized.";
+    ctx.body = {
+      success: false,
+      error: "Unauthorized.",
+    };
   }
 }
