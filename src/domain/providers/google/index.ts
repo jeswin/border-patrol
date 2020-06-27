@@ -1,10 +1,7 @@
 import * as user from "../../user";
-import { IGetJwtAndTokensResult } from "..";
 import { decode, IJwt } from "../../../utils/jwt";
 
-export async function getJwtAndTokensWithGrant(
-  grant: any
-): Promise<IGetJwtAndTokensResult> {
+export async function getJwtAndTokensWithGrant(grant: any) {
   const idToken = grant.response.id_token;
 
   // We don't verify the token because we trust the secure link to Google
@@ -15,15 +12,17 @@ export async function getJwtAndTokensWithGrant(
 
   return userId
     ? await (async () => {
-        const jwtAndTokens = await user.getJwtAndTokensByProviderIdentity(
+        const result = await user.getJwtAndTokensByProviderIdentity(
           userId,
           "google"
         );
-        const result = {
-          success: true as true,
-          ...jwtAndTokens,
+        return {
+          fetchedProviderUser: true as true,
+          ...result,
         };
-        return result;
       })()
-    : { success: false, reason: "Did not get email id from Google." };
+    : {
+        fetchedProviderUser: false as false,
+        error: "Did not get email address from Google.",
+      };
 }

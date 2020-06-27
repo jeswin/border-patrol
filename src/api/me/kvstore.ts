@@ -4,7 +4,7 @@ import * as user from "../../domain/user";
 
 export async function createKeyValuePair(ctx: IRouterContext) {
   return ensureUserId(ctx, async userId => {
-    const result = await user.createKeyValuePair(
+    await user.createKeyValuePair(
       userId,
       ctx.request.body.key,
       ctx.request.body.value,

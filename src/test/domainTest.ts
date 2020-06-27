@@ -25,13 +25,13 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
     it("user.getUserId() returns userid with provider credentials", async () => {
       await writeSampleData(dbConfig);
       const result = await userModule.getUserId("jeswin", "github");
-      result.should.deepEqual({ isValidUser: true, userId: "jeswin" });
+      result.should.deepEqual({ foundUser: true, userId: "jeswin" });
     });
 
     it("user.getUserId() returns false with invalid provider credentials", async () => {
       await writeSampleData(dbConfig);
       const result = await userModule.getUserId("alice", "github");
-      result.should.deepEqual({ isValidUser: false });
+      result.should.deepEqual({ foundUser: false });
     });
 
     it("user.getRoles() returns roles", async () => {
@@ -54,7 +54,7 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
       );
       result.jwt = "something";
       result.should.deepEqual({
-        isValidUser: true,
+        foundUser: true,
         jwt: "something",
         tokens: {
           userId: "jeswin",
@@ -170,7 +170,11 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
 
     it("user.createUser() verifies max userId length", async () => {
       await writeSampleData(dbConfig);
-      const result = await userModule.createUser("thisisaverylongusername", "jeswin", "github");
+      const result = await userModule.createUser(
+        "thisisaverylongusername",
+        "jeswin",
+        "github"
+      );
       result.should.deepEqual({
         created: false,
         reason: "UserId should be at most 12 characters long.",
@@ -205,8 +209,8 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
         (result as any).jwt = "something";
 
         result.should.deepEqual({
-          success: true,
-          isValidUser: true,
+          fetchedProviderUser: true,        
+          foundUser: true,
           jwt: "something",
           tokens: {
             userId: "jeswin",
@@ -237,8 +241,8 @@ export default function run(dbConfig: IDbConfig, configDir: string) {
         });
         (result as any).jwt = "something";
         result.should.deepEqual({
-          success: true,
-          isValidUser: false,
+          fetchedProviderUser: true,
+          foundUser: false,
           jwt: "something",
           tokens: { providerUserId: "alice", provider: "github" },
         });

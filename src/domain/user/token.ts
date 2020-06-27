@@ -12,7 +12,7 @@ export async function getTokensForUser(
   const pool = getPool();
 
   const userTokenParams = new pg.Params({
-    user_id: userId
+    user_id: userId,
   });
 
   const { rows: userTokenRows } = await pool.query(
@@ -27,7 +27,7 @@ export async function getTokensForUser(
   const roleTokenRows = roles.length
     ? await (async () => {
         const roleTokenParams = new pg.Params({
-          ...roles
+          ...roles,
         });
 
         const { rows: roleTokenRows } = await pool.query(
@@ -49,18 +49,18 @@ export async function getTokensForUser(
     ? {
         userId,
         roles: roles.join(","),
-        ...tokens
+        ...tokens,
       }
     : {
         userId,
-        ...tokens
+        ...tokens,
       };
 
   return result;
 }
 
 export interface IGetTokensResult {
-  isValidUser: boolean;
+  foundUser: boolean;
   jwt: string;
   tokens: { [key: string]: string };
 }
@@ -71,19 +71,19 @@ export async function getJwtAndTokensByProviderIdentity(
 ): Promise<IGetTokensResult> {
   const getUserIdResult = await getUserId(providerUserId, provider);
 
-  return getUserIdResult.isValidUser
+  return getUserIdResult.foundUser
     ? await (async () => {
         const userId = getUserIdResult.userId;
         const tokensForUser = await getTokensForUser(userId);
         return {
-          isValidUser: true,
+          foundUser: true as true,
           jwt: sign({ ...tokensForUser, providerUserId, provider }),
-          tokens: { ...tokensForUser, providerUserId, provider }
+          tokens: { ...tokensForUser, providerUserId, provider },
         };
       })()
     : {
-        isValidUser: false,
+        foundUser: false as false,
         jwt: sign({ providerUserId, provider }),
-        tokens: { providerUserId, provider }
+        tokens: { providerUserId, provider },
       };
 }

@@ -48,10 +48,10 @@ export async function getUserIdAvailability(
 
 export type GetUserIdResult =
   | {
-      isValidUser: true;
+      foundUser: true;
       userId: string;
     }
-  | { isValidUser: false };
+  | { foundUser: false };
 
 export async function getUserId(
   providerUserId: string,
@@ -73,11 +73,11 @@ export async function getUserId(
 
   return rows.length
     ? {
-        isValidUser: true,
+        foundUser: true,
         userId: rows[0].user_id,
       }
     : {
-        isValidUser: false,
+        foundUser: false,
       };
 }
 
@@ -116,7 +116,7 @@ export async function createUser(
             }
           : await (async () => {
               const getUserIdResult = await getUserId(providerUserId, provider);
-              return getUserIdResult.isValidUser
+              return getUserIdResult.foundUser
                 ? { created: false as false, reason: "User already exists." }
                 : await (async () => {
                     const txResult = await withTransaction((client) =>

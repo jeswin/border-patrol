@@ -21,9 +21,11 @@ export async function login(ctx: IRouterContext) {
 
     ctx.body = {
       success: true,
-      userId,
-      domain: config.domain,
-      jwt,
+      result: {
+        userId,
+        domain: config.domain,
+        jwt,
+      },
     };
   } else {
     ctx.body = {

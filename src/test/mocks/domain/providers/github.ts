@@ -1,7 +1,7 @@
 export async function getJwtAndTokensWithGrant() {
   return {
-    isValidUser: false,
-    success: true as true,
+    fetchedProviderUser: true as true,
+    foundUser: true as true,
     jwt: "some_jwt",
     tokens: { userId: "some_userid" },
   };

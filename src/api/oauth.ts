@@ -41,15 +41,13 @@ export async function handleProviderCallback(
         ? await google.getJwtAndTokensWithGrant(grant)
         : error("Invalid oauth service selected.");
 
-    if (result.success) {
+    if (result.fetchedProviderUser) {
       setCookie(ctx, config.cookieName, result.jwt);
-      ctx.redirect(
-        result.isValidUser ? successRedirectUrl : newuserRedirectUrl
-      );
+      ctx.redirect(result.foundUser ? successRedirectUrl : newuserRedirectUrl);
     } else {
       ctx.body = {
         success: false,
-        error: "Unimplemented.",
+        error: result.error,
       };
     }
   }

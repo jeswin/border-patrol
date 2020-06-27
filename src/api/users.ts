@@ -10,7 +10,9 @@ export async function createUser(ctx: IRouterContext) {
     setCookie(ctx, config.cookieName, jwt);
     ctx.body = {
       success: true,
-      [config.cookieName]: jwt,
+      result: {
+        [config.cookieName]: jwt,
+      },
     };
   }
 

@@ -8,6 +8,8 @@ export async function getUserIdAvailability(ctx: IRouterContext) {
   const result = await user.getUserIdAvailability(userId);
   ctx.body = {
     success: true,
-    available: result.available,
+    result: {
+      available: result.available,
+    },
   };
 }

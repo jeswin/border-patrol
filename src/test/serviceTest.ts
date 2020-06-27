@@ -52,7 +52,9 @@ export default function run(
       response.statusCode.should.equal(200);
       JSON.parse(response.body).should.deepEqual({
         success: true,
-        available: false,
+        result: {
+          available: false,
+        },
       });
     });
 
@@ -63,7 +65,9 @@ export default function run(
       response.statusCode.should.equal(200);
       JSON.parse(response.body).should.deepEqual({
         success: true,
-        available: true,
+        result: {
+          available: true,
+        },
       });
     });
 
@@ -130,7 +134,7 @@ export default function run(
               jwtCookie.value.should.equal("some_jwt");
 
               response.body.should.equal(
-                `Redirecting to <a href="http://test.example.com/newuser">http://test.example.com/newuser</a>.`
+                `Redirecting to <a href="http://test.example.com/success">http://test.example.com/success</a>.`
               );
             }
           );
@@ -172,7 +176,9 @@ export default function run(
 
               JSON.parse(response.body).should.deepEqual({
                 success: true,
-                "border-patrol-jwt": "some_other_jwt",
+                result: {
+                  "border-patrol-jwt": "some_other_jwt",
+                },
               });
             }
           );
