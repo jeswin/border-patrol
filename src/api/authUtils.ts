@@ -16,7 +16,7 @@ export async function ensureJwt(
     ctx.status = 400;
     ctx.body = {
       success: false,
-      error: "Missing JWT in request. Pass via cookies or in the header.",
+      error: "Missing JWT in request. Pass JWT in the header.",
     };
   } else {
     const result = jwtModule.verify(jwt);
