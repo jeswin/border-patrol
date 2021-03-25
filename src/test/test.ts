@@ -6,6 +6,7 @@ import { join } from "path";
 import { IDbConfig } from "psychopiggy";
 import { readFileSync } from "fs";
 import { Pool } from "pg";
+import { IAppConfig } from "../types";
 
 function run() {
   /* Sanity check to make sure we don't accidentally run on the server. */
@@ -26,6 +27,7 @@ function run() {
   const port = parseInt(process.env.PORT);
   const configDir = process.env.CONFIG_DIR;
 
+  const appConfig: IAppConfig = require(join(configDir, "app.js"));
   const dbConfig: IDbConfig = require(join(configDir, "pg.js"));
 
   /* Sanity check to make sure we don't accidentally overwrite any database. */
@@ -64,7 +66,7 @@ function run() {
       await pool.query(createTablesSQL);
     });
 
-    serviceTest(dbConfig, port, configDir);
+    serviceTest(dbConfig, appConfig.domain, port, configDir);
     domainTest(dbConfig, configDir);
   });
 }

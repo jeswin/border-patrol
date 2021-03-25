@@ -26,6 +26,7 @@ let app: any;
 
 export default function run(
   dbConfig: IDbConfig,
+  domain: string,
   port: number,
   configDir: string
 ) {
@@ -46,9 +47,7 @@ export default function run(
           (id, name, status, timestamp)
           VALUES('jeswin', 'Jeswin Kumar', 'active', ${Date.now()});
       `);
-      const response = await got(
-        `http://test.example.com:${port}/user-ids/jeswin`
-      );
+      const response = await got(`http://${domain}:${port}/user-ids/jeswin`);
       response.statusCode.should.equal(200);
       JSON.parse(response.body).should.deepEqual({
         success: true,
@@ -59,9 +58,7 @@ export default function run(
     });
 
     it("says available userid is available", async () => {
-      const response = await got(
-        `http://test.example.com:${port}/user-ids/alice`
-      );
+      const response = await got(`http://${domain}:${port}/user-ids/alice`);
       response.statusCode.should.equal(200);
       JSON.parse(response.body).should.deepEqual({
         success: true,
@@ -73,16 +70,16 @@ export default function run(
 
     it("redirects to connect", async () => {
       const response = await got(
-        `http://test.example.com:${port}/authenticate/github?success=http://test.example.com/success&newuser=http://test.example.com/newuser`,
+        `http://${domain}:${port}/authenticate/github?success=http://${domain}:${port}/success&newuser=http://${domain}:${port}/newuser`,
         { followRedirect: false }
       );
       response.headers.should.not.be.empty();
       if (response.headers) {
         (response.headers as any)["set-cookie"].should.containEql(
-          "border-patrol-success-redirect=http://test.example.com/success; path=/; domain=test.example.com"
+          `border-patrol-success-redirect=http://${domain}:${port}/success; path=/; domain=${domain}`
         );
         (response.headers as any)["set-cookie"].should.containEql(
-          "border-patrol-newuser-redirect=http://test.example.com/newuser; path=/; domain=test.example.com"
+          `border-patrol-newuser-redirect=http://${domain}:${port}/newuser; path=/; domain=${domain}`
         );
         response.body.should.equal(
           `Redirecting to <a href="/connect/github">/connect/github</a>.`
@@ -105,17 +102,17 @@ export default function run(
               const setCookie = promisify(cookieJar.setCookie.bind(cookieJar));
 
               await setCookie(
-                "border-patrol-success-redirect=http://test.example.com/success",
-                "http://test.example.com"
+                `border-patrol-success-redirect=http://${domain}:${port}/success`,
+                `http://${domain}:${port}`
               );
 
               await setCookie(
-                "border-patrol-newuser-redirect=http://test.example.com/newuser",
-                "http://test.example.com"
+                `border-patrol-newuser-redirect=http://${domain}:${port}/newuser`,
+                `http://${domain}:${port}`
               );
 
               const response = await got(
-                `http://test.example.com:${port}/oauth/token/github`,
+                `http://${domain}:${port}/oauth/token/github`,
                 { cookieJar, followRedirect: false }
               );
 
@@ -134,7 +131,7 @@ export default function run(
               jwtCookie.value.should.equal("some_jwt");
 
               response.body.should.equal(
-                `Redirecting to <a href="http://test.example.com/success">http://test.example.com/success</a>.`
+                `Redirecting to <a href="http://${domain}:${port}/success">http://${domain}:${port}/success</a>.`
               );
             }
           );
@@ -153,14 +150,11 @@ export default function run(
             userModule.createUser,
             userMocks.createUser,
             async () => {
-              const response = await got(
-                `http://test.example.com:${port}/users`,
-                {
-                  method: "POST",
-                  body: JSON.stringify({ userId: "jeswin" }),
-                  headers: { "border-patrol-jwt": "some_jwt" },
-                }
-              );
+              const response = await got(`http://${domain}:${port}/users`, {
+                method: "POST",
+                body: JSON.stringify({ userId: "jeswin" }),
+                headers: { "border-patrol-jwt": "some_jwt" },
+              });
 
               const cookies: any[] =
                 response.headers["set-cookie"] instanceof Array
@@ -189,7 +183,7 @@ export default function run(
     it("deletes a user", async () => {
       await writeSampleData(dbConfig);
       const response = await got(
-        `http://test.example.com:${port}/admin/users/jeswin`,
+        `http://${domain}:${port}/admin/users/jeswin`,
         {
           method: "DELETE",
           headers: {
@@ -225,7 +219,7 @@ export default function run(
       await writeSampleData(dbConfig);
 
       const promisedResponse = got(
-        `http://test.example.com:${port}/admin/users/jeswin`,
+        `http://${domain}:${port}/admin/users/jeswin`,
         {
           method: "DELETE",
           headers: {
@@ -257,7 +251,7 @@ export default function run(
             kvstoreMocks.createKeyValuePair,
             async () => {
               const response = await got(
-                `http://test.example.com:${port}/me/kvstore`,
+                `http://${domain}:${port}/me/kvstore`,
                 { method: "POST", headers: { "border-patrol-jwt": "some_jwt" } }
               );
               JSON.parse(response.body).should.deepEqual({ success: true });

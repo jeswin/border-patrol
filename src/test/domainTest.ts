@@ -1,6 +1,3 @@
-import pg = require("pg");
-import { join } from "path";
-import { readFileSync } from "fs";
 import { IDbConfig } from "psychopiggy";
 import * as userModule from "../domain/user";
 import * as localAccountModule from "../domain/localAccount";

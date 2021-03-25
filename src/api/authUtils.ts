@@ -10,7 +10,8 @@ export async function ensureJwt(
   ) => Promise<any>
 ) {
   const config = configModule.get();
-  const jwt: string = ctx.headers[config.cookieName];
+  const cookie = ctx.headers[config.cookieName];
+  const jwt = cookie ? (Array.isArray(cookie) ? cookie[0] : cookie) : undefined;
 
   if (!jwt) {
     ctx.status = 400;

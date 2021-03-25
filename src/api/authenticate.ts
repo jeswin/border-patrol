@@ -1,12 +1,11 @@
-import urlModule = require("url");
 import { IRouterContext } from "koa-router";
 import * as configModule from "../config";
 import { setTempCookie } from "../utils/cookie";
 
 function isInDomain(url: string) {
   const config = configModule.get();
+  const hostname = new URL(url).hostname;
 
-  const hostname = urlModule.parse(url).host;
   return (
     hostname &&
     (hostname === config.domain || hostname.endsWith(`.${config.domain}`))
@@ -17,8 +16,16 @@ export function authenticate(service: string) {
   const config = configModule.get();
 
   return async (ctx: IRouterContext) => {
-    const successRedirect = ctx.query.success;
-    const newuserRedirect = ctx.query.newuser;
+    const successRedirect = ctx.query.success
+      ? Array.isArray(ctx.query.success)
+        ? ctx.query.success[0]
+        : ctx.query.success
+      : undefined;
+    const newuserRedirect = ctx.query.newuser
+      ? Array.isArray(ctx.query.newuser)
+        ? ctx.query.newuser[0]
+        : ctx.query.newuser
+      : undefined;
 
     if (service === "login") {
       ctx.status = 406;

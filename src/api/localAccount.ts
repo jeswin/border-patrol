@@ -6,7 +6,7 @@ import { setCookie } from "../utils/cookie";
 
 export async function login(ctx: IRouterContext) {
   const config = configModule.get();
-  const { userId, password } = ctx.body;
+  const { userId, password } = ctx.body as any;
   const isValidLogin = await authenticate(userId, password);
 
   if (isValidLogin) {
