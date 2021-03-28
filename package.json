@@ -1,10 +1,11 @@
 {
   "name": "border-patrol",
-  "version": "5.0.2",
+  "version": "5.0.3",
   "author": "Jeswin Kumar<jeswinpk@agilehead.com>",
-  "contributors": [
-    "Jeswin Kumar<jeswinpk@agilehead.com>"
-  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jeswin/border-patrol"
+  },
   "scripts": {
     "transpile": "./build.sh",
     "test": "./build.sh && mocha --exit dist/test/test.js"
