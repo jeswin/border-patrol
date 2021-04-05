@@ -8,7 +8,7 @@ module.exports = {
   enabledProviders: ["github", "google"],
   account: {
     minUserIdLength: 4,
-    maxUserIdLength: 8,
+    maxUserIdLength: 12,
   },
   adminKey: "secret"
 };

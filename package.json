@@ -1,6 +1,6 @@
 {
   "name": "border-patrol",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "author": "Jeswin Kumar<jeswinpk@agilehead.com>",
   "repository": {
     "type": "git",
@@ -15,7 +15,7 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "dependencies": {    
+  "dependencies": {
     "got": "^11.8.2",
     "grant-koa": "^5.4.8",
     "jsonwebtoken": "^8.5.1",
@@ -23,10 +23,10 @@
     "koa-bodyparser": "^4.3.0",
     "koa-mount": "^4.0.0",
     "koa-router": "^10.0.0",
-    "koa-session": "^6.1.0",
+    "koa-session": "^6.2.0",
     "pg": "^8.5.1",
-    "pg-types": "^2.2.0",
-    "psychopiggy": "^2.0.5",
+    "pg-types": "^3.0.1",
+    "psychopiggy": "^2.0.8",
     "yargs": "^16.2.0"
   },
   "devDependencies": {
@@ -36,12 +36,12 @@
     "@types/koa-mount": "^4.0.0",
     "@types/koa-router": "^7.4.1",
     "@types/koa-session": "^5.10.3",
-    "@types/node": "^14.14.35",
-    "@types/pg": "^7.14.11",
-    "@types/yargs": "^16.0.0",
     "@types/mocha": "^8.2.2",
+    "@types/node": "^14.14.37",
+    "@types/pg": "^7.14.11",
     "@types/should": "^13.0.0",
     "@types/tough-cookie": "^4.0.0",
+    "@types/yargs": "^16.0.1",
     "mocha": "^8.3.2",
     "should": "^13.2.3",
     "tough-cookie": "^4.0.0"
