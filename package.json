@@ -16,7 +16,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "got": "^11.8.2",
+    "got": "^11.8.5",
     "grant-koa": "^5.4.8",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.13.1",
